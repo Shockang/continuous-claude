@@ -16,17 +16,48 @@ Using Claude Code to drive iterative development, this script fully automates th
 
 ## 🚀 Quick start
 
-**Prerequisites:** Install the [Claude Code CLI](https://code.claude.com) and [GitHub CLI](https://cli.github.com), then authenticate both (`claude auth` and `gh auth login`). Once ready:
+### Installation
+
+Install with a single command:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/main/install.sh | bash
+```
+
+This will:
+
+- Install `continuous-claude` to `~/.local/bin`
+- Check for required dependencies
+- Guide you through adding it to your PATH if needed
+
+### Manual installation
+
+If you prefer to install manually:
 
 ```bash
 # Download the script
-curl -o continuous_claude.sh https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/heads/main/continuous_claude.sh
+curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/main/continuous_claude.sh -o continuous-claude
 
 # Make it executable
-chmod +x continuous_claude.sh
+chmod +x continuous-claude
 
-# Run it with your prompt, infinite max runs, and GitHub repo
-./continuous_claude.sh --prompt "add unit tests until all code is covered" --max-runs 0 --owner AnandChowdhary --repo continuous-claude
+# Move to a directory in your PATH
+sudo mv continuous-claude /usr/local/bin/
+```
+
+### Prerequisites
+
+Before using `continuous-claude`, you need:
+
+1. **[Claude Code CLI](https://code.claude.com)** - Authenticate with `claude auth`
+2. **[GitHub CLI](https://cli.github.com)** - Authenticate with `gh auth login`
+3. **jq** - Install with `brew install jq` (macOS) or `apt-get install jq` (Linux)
+
+### Usage
+
+```bash
+# Run with your prompt, infinite max runs, and GitHub repo
+continuous-claude --prompt "add unit tests until all code is covered" --max-runs 0 --owner AnandChowdhary --repo continuous-claude
 ```
 
 ## 🎯 Flags
@@ -42,16 +73,26 @@ chmod +x continuous_claude.sh
 
 ```bash
 # Run 5 iterations
-./continuous_claude.sh -p "improve code quality" -m 5 --owner AnandChowdhary --repo continuous-claude
+continuous-claude -p "improve code quality" -m 5 --owner AnandChowdhary --repo continuous-claude
 
 # Run infinitely until stopped
-./continuous_claude.sh -p "add unit tests until all code is covered" -m 0 --owner AnandChowdhary --repo continuous-claude
+continuous-claude -p "add unit tests until all code is covered" -m 0 --owner AnandChowdhary --repo continuous-claude
 
 # Use custom branch prefix
-./continuous_claude.sh -p "refactor code" -m 3 --owner AnandChowdhary --repo continuous-claude --git-branch-prefix "feature/"
+continuous-claude -p "refactor code" -m 3 --owner AnandChowdhary --repo continuous-claude --git-branch-prefix "feature/"
 
 # Test without creating commits or PRs
-./continuous_claude.sh -p "test changes" -m 2 --owner AnandChowdhary --repo continuous-claude --disable-commits
+continuous-claude -p "test changes" -m 2 --owner AnandChowdhary --repo continuous-claude --disable-commits
+```
+
+## 🗑️ Uninstall
+
+To uninstall `continuous-claude`:
+
+```bash
+rm ~/.local/bin/continuous-claude
+# or if you installed to /usr/local/bin:
+sudo rm /usr/local/bin/continuous-claude
 ```
 
 ## 📊 Example output
@@ -75,6 +116,16 @@ Here's what a successful run looks like:
 ✅ (1/1) PR merged and local branch cleaned up
 🎉 Done with total cost: $0.042
 ```
+
+## 🔄 Releases
+
+This project uses automated semantic versioning based on commit messages:
+
+- **Major version** (1.0.0): Breaking changes (commits with `BREAKING CHANGE`, `feat!`, `fix!`, etc.)
+- **Minor version** (0.1.0): New features (commits starting with `feat:`)
+- **Patch version** (0.0.1): Bug fixes and other changes
+
+Every push to `main` automatically creates a new GitHub release. View all releases on the [releases page](https://github.com/AnandChowdhary/continuous-claude/releases).
 
 ## 📃 License
 
