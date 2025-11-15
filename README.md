@@ -1,6 +1,6 @@
 # 🔂 Continuous Claude
 
-Automated workflow running Claude Code continuously - creating, reviewing, and merging PRs until your development goal is complete.
+Automated workflow that orchestrates Claude Code in a continuous loop, autonomously creating PRs, waiting for checks, and merging—so multi-step projects complete while you sleep.
 
 ## ⚙️ How it works
 

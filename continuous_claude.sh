@@ -3,6 +3,36 @@
 ADDITIONAL_FLAGS="--dangerously-skip-permissions --output-format json"
 NOTES_FILE="SHARED_TASK_NOTES.md"
 
+# AI Prompts
+PROMPT_JQ_INSTALL="Please install jq for JSON parsing"
+
+PROMPT_COMMIT_MESSAGE="Please review the dirty files in the git repository, write a commit message with: (1) a short one-line summary, (2) two newlines, (3) then a detailed explanation. Do not include any footers or metadata like 'Generated with Claude Code' or 'Co-Authored-By'. Feel free to look at the last few commits to get a sense of the commit message style. Track all files and commit the changes using 'git commit -am \"your message\"' (don't push, just commit, no need to ask for confirmation)."
+
+PROMPT_WORKFLOW_CONTEXT="## CONTINUOUS WORKFLOW CONTEXT
+
+This is part of a continuous development loop where work happens incrementally across multiple iterations. You might run once, then a human developer might make changes, then you run again, and so on. This could happen daily or on any schedule.
+
+**Important**: You don't need to complete the entire goal in one iteration. Just make meaningful progress on one thing, then leave clear notes for the next iteration (human or AI). Think of it as a relay race where you're passing the baton.
+
+## PRIMARY GOAL"
+
+PROMPT_NOTES_UPDATE_EXISTING="Update the \`$NOTES_FILE\` file with relevant context for the next iteration. Add new notes and remove outdated information to keep it current and useful."
+
+PROMPT_NOTES_CREATE_NEW="Create a \`$NOTES_FILE\` file with relevant context and instructions for the next iteration."
+
+PROMPT_NOTES_GUIDELINES="
+
+This file helps coordinate work across iterations (both human and AI developers). It should:
+
+- Contain relevant context and instructions for the next iteration
+- Stay concise and actionable (like a notes file, not a detailed report)
+- Help the next developer understand what to do next
+
+The file should NOT include:
+- Lists of completed work or full reports
+- Information that can be discovered by running tests/coverage
+- Unnecessary details"
+
 PROMPT=""
 MAX_RUNS=""
 ENABLE_COMMITS=true
@@ -89,7 +119,7 @@ validate_requirements() {
 
     if ! command -v jq &> /dev/null; then
         echo "⚠️ jq is required for JSON parsing but is not installed. Asking Claude Code to install it..." >&2
-        claude -p "Please install jq for JSON parsing" --allowedTools "Bash,Read"
+        claude -p "$PROMPT_JQ_INSTALL" --allowedTools "Bash,Read"
         if ! command -v jq &> /dev/null; then
             echo "❌ Error: jq is still not installed after Claude Code attempt." >&2
             exit 1
@@ -319,9 +349,7 @@ continuous_claude_commit() {
     
     echo "💬 $iteration_display Committing changes..." >&2
     
-    commit_prompt="Please review the dirty files in the git repository, write a commit message with: (1) a short one-line summary, (2) two newlines, (3) then a detailed explanation. Do not include any footers or metadata like 'Generated with Claude Code' or 'Co-Authored-By'. Feel free to look at the last few commits to get a sense of the commit message style. Track all files and commit the changes using 'git commit -am \"your message\"' (don't push, just commit, no need to ask for confirmation)."
-    
-    if ! claude -p "$commit_prompt" --allowedTools "Bash(git)" --dangerously-skip-permissions >/dev/null 2>&1; then
+    if ! claude -p "$PROMPT_COMMIT_MESSAGE" --allowedTools "Bash(git)" --dangerously-skip-permissions >/dev/null 2>&1; then
         echo "⚠️  $iteration_display Failed to commit changes" >&2
         git checkout "$current_branch" >/dev/null 2>&1
         return 1
