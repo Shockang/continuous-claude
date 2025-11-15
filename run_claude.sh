@@ -1,8 +1,42 @@
 #!/bin/bash
 
-PROMPT='what does this project do?'
 ADDITIONAL_FLAGS="--dangerously-skip-permissions --output-format json"
-MAX_RUNS=1
+MAX_RUNS=""
+PROMPT=""
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -p|--prompt)
+            PROMPT="$2"
+            shift 2
+            ;;
+        -m|--max-runs)
+            MAX_RUNS="$2"
+            shift 2
+            ;;
+        *)
+            # Ignore unknown flags
+            shift
+            ;;
+    esac
+done
+
+if [ -z "$PROMPT" ]; then
+    echo "❌ Error: Prompt is required. Use -p to provide a prompt." >&2
+    echo "Usage: $0 -p \"your prompt\" -m max_runs" >&2
+    exit 1
+fi
+
+if [ -z "$MAX_RUNS" ]; then
+    echo "❌ Error: MAX_RUNS is required. Use -m to provide max runs (0 for infinite)." >&2
+    echo "Usage: $0 -p \"your prompt\" -m max_runs" >&2
+    exit 1
+fi
+
+if ! [[ "$MAX_RUNS" =~ ^[0-9]+$ ]]; then
+    echo "❌ Error: MAX_RUNS must be a non-negative integer (0 for infinite)" >&2
+    exit 1
+fi
 
 if ! command -v claude &> /dev/null; then
     echo "❌ Error: Claude Code is not installed: https://claude.ai/code" >&2
@@ -27,25 +61,22 @@ continuous_claude_commit() {
     fi
 
     if git diff --quiet && git diff --cached --quiet; then
-        echo "➖ $iteration_display No changes detected" >&2
+        echo "🫙 $iteration_display No changes detected" >&2
         return 0
     fi
 
     echo "💬 $iteration_display Committing changes..." >&2
     
-    commit_prompt="Please review the dirty files in the git repository, write a commit message with: (1) a short one-line summary, (2) two newlines, (3) then a detailed explanation. Do not include any footers or metadata like 'Generated with Claude Code' or 'Co-Authored-By'. Track all files and commit the changes using 'git commit -am \"your message\"' (don't push, just commit, no need to ask for confirmation)."
+    commit_prompt="Please review the dirty files in the git repository, write a commit message with: (1) a short one-line summary, (2) two newlines, (3) then a detailed explanation. Do not include any footers or metadata like 'Generated with Claude Code' or 'Co-Authored-By'. Feel free to look at the last few commits to get a sense of the commit message style. Track all files and commit the changes using 'git commit -am \"your message\"' (don't push, just commit, no need to ask for confirmation)."
     
-    if commit_result=$(claude -p "$commit_prompt" --allowedTools "Bash(git)" --dangerously-skip-permissions 2>&1); then
-        # Check if commit actually happened
+    if claude -p "$commit_prompt" --allowedTools "Bash(git)" --dangerously-skip-permissions >/dev/null 2>&1; then
         if git diff --quiet && git diff --cached --quiet; then
             echo "📦 $iteration_display Changes committed" >&2
         else
             echo "⚠️  $iteration_display Commit command ran but changes still present" >&2
-            echo "$commit_result" >&2
         fi
     else
         echo "⚠️  $iteration_display Failed to commit changes" >&2
-        echo "$commit_result" >&2
     fi
 }
 
