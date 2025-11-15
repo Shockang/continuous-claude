@@ -9,8 +9,8 @@ For tasks that require multiple iterations to complete, this script runs Claude 
 - Claude Code runs in a loop based on your prompt
 - All changes are committed to a new branch
 - A new pull request is created
-- It waits for all required PR checks to pass
-- Once checks are successful, the PR is merged
+- It waits for all required PR checks and code reviews to complete
+- Once checks pass and reviews are approved, the PR is merged
 - This process repeats until your task is complete
 - A `SHARED_TASK_NOTES.md` file coordinates work across iterations between humans and AI
 
@@ -67,7 +67,8 @@ Here's what a successful run looks like:
 📤 (1/1) Pushing branch...
 🔨 (1/1) Creating pull request...
 🔍 (1/1) PR #3 created, waiting for checks...
-✅ (1/1) No checks configured, proceeding with merge
+✅ (1/1) No checks configured
+✅ (1/1) All PR checks and reviews passed
 🔀 (1/1) Merging PR #3...
 📥 (1/1) Pulling latest from main...
 🗑️  (1/1) Deleting local branch: continuous-claude/1-1763205620

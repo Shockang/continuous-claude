@@ -120,60 +120,104 @@ wait_for_pr_checks() {
         if ! checks_json=$(gh pr checks "$pr_number" --repo "$owner/$repo" --json state,bucket 2>&1); then
             # Check if the error is because there are no checks configured
             if echo "$checks_json" | grep -q "no checks"; then
-                echo "✅ $iteration_display No checks configured, proceeding with merge" >&2
-                return 0
+                echo "✅ $iteration_display No checks configured" >&2
+            else
+                echo "⚠️  $iteration_display Failed to get PR checks status: $checks_json" >&2
+                return 1
             fi
-            echo "⚠️  $iteration_display Failed to get PR checks status: $checks_json" >&2
-            return 1
         fi
 
         local all_completed=true
         local all_success=true
-        local check_count=$(echo "$checks_json" | jq 'length')
+        local check_count=$(echo "$checks_json" | jq 'length' 2>/dev/null || echo "0")
 
-        if [ "$check_count" -eq 0 ]; then
+        if [ "$check_count" -gt 0 ]; then
+            local idx=0
+            while [ $idx -lt $check_count ]; do
+                local state=$(echo "$checks_json" | jq -r ".[$idx].state")
+                local bucket=$(echo "$checks_json" | jq -r ".[$idx].bucket // \"pending\"")
+
+                # Check if the check is still in progress (not completed)
+                if [ "$bucket" = "pending" ] || [ "$bucket" = "null" ]; then
+                    all_completed=false
+                    break
+                fi
+
+                # Check if the check failed
+                if [ "$bucket" = "fail" ]; then
+                    all_success=false
+                    break
+                fi
+
+                idx=$((idx + 1))
+            done
+        fi
+
+        # Check review status
+        local pr_info
+        if ! pr_info=$(gh pr view "$pr_number" --repo "$owner/$repo" --json reviewDecision,reviewRequests 2>&1); then
+            echo "⚠️  $iteration_display Failed to get PR review status: $pr_info" >&2
+            return 1
+        fi
+
+        local review_decision=$(echo "$pr_info" | jq -r '.reviewDecision // "null"')
+        local review_requests_count=$(echo "$pr_info" | jq '.reviewRequests | length' 2>/dev/null || echo "0")
+        
+        # Check if reviews are required and pending
+        local reviews_pending=false
+        if [ "$review_decision" = "REVIEW_REQUIRED" ] || [ "$review_requests_count" -gt 0 ]; then
+            reviews_pending=true
+        fi
+
+        # If we have checks that haven't started yet, wait
+        if [ "$check_count" -eq 0 ] && [ "$checks_json" != "" ]; then
             echo "⏳ $iteration_display Waiting for checks to start..." >&2
             sleep 60
             iteration=$((iteration + 1))
             continue
         fi
 
-        local idx=0
-        while [ $idx -lt $check_count ]; do
-            local state=$(echo "$checks_json" | jq -r ".[$idx].state")
-            local bucket=$(echo "$checks_json" | jq -r ".[$idx].bucket // \"pending\"")
-
-            # Check if the check is still in progress (not completed)
-            if [ "$bucket" = "pending" ] || [ "$bucket" = "null" ]; then
-                all_completed=false
-                break
+        # Check if everything is ready
+        if [ "$all_completed" = "true" ] && [ "$all_success" = "true" ] && [ "$reviews_pending" = "false" ]; then
+            if [ "$review_decision" = "APPROVED" ] || [ "$review_decision" = "null" ]; then
+                echo "✅ $iteration_display All PR checks and reviews passed" >&2
+                return 0
             fi
-
-            # Check if the check failed
-            if [ "$bucket" = "fail" ]; then
-                all_success=false
-                break
-            fi
-
-            idx=$((idx + 1))
-        done
-
-        if [ "$all_completed" = "true" ] && [ "$all_success" = "true" ]; then
-            echo "✅ $iteration_display All PR checks passed" >&2
-            return 0
         fi
 
+        # Check for failures
         if [ "$all_completed" = "true" ] && [ "$all_success" = "false" ]; then
             echo "❌ $iteration_display PR checks failed" >&2
             return 1
         fi
 
-        echo "⏳ $iteration_display Waiting for PR checks to complete... ($((iteration + 1))/$max_iterations)" >&2
+        if [ "$review_decision" = "CHANGES_REQUESTED" ]; then
+            echo "❌ $iteration_display PR has changes requested in review" >&2
+            return 1
+        fi
+
+        # Still waiting for checks or reviews
+        local waiting_msg="⏳ $iteration_display Waiting for"
+        local waiting_items=()
+        
+        if [ "$all_completed" = "false" ]; then
+            waiting_items+=("checks")
+        fi
+        
+        if [ "$reviews_pending" = "true" ]; then
+            waiting_items+=("code review")
+        fi
+        
+        if [ ${#waiting_items[@]} -gt 0 ]; then
+            waiting_msg="$waiting_msg ${waiting_items[*]} to complete... ($((iteration + 1))/$max_iterations)"
+            echo "$waiting_msg" >&2
+        fi
+
         sleep 60
         iteration=$((iteration + 1))
     done
 
-    echo "⏱️  $iteration_display Timeout waiting for PR checks (30 minutes)" >&2
+    echo "⏱️  $iteration_display Timeout waiting for PR checks and reviews (30 minutes)" >&2
     return 1
 }
 
