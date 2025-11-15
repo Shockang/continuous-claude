@@ -35,8 +35,10 @@ The file should NOT include:
 
 PROMPT=""
 MAX_RUNS=""
+MAX_COST=""
 ENABLE_COMMITS=true
 GIT_BRANCH_PREFIX="continuous-claude/"
+MERGE_STRATEGY="squash"
 GITHUB_OWNER=""
 GITHUB_REPO=""
 ERROR_LOG=""
@@ -57,8 +59,16 @@ parse_arguments() {
                 MAX_RUNS="$2"
                 shift 2
                 ;;
+            --max-cost)
+                MAX_COST="$2"
+                shift 2
+                ;;
             --git-branch-prefix)
                 GIT_BRANCH_PREFIX="$2"
+                shift 2
+                ;;
+            --merge-strategy)
+                MERGE_STRATEGY="$2"
                 shift 2
                 ;;
             --owner)
@@ -83,30 +93,42 @@ parse_arguments() {
 validate_arguments() {
     if [ -z "$PROMPT" ]; then
         echo "❌ Error: Prompt is required. Use -p to provide a prompt." >&2
-        echo "Usage: $0 -p \"your prompt\" -m max_runs --owner owner --repo repo [--disable-commits]" >&2
+        echo "Usage: $0 -p \"your prompt\" (-m max_runs | --max-cost max_cost) --owner owner --repo repo [options]" >&2
         exit 1
     fi
 
-    if [ -z "$MAX_RUNS" ]; then
-        echo "❌ Error: MAX_RUNS is required. Use -m to provide max runs (0 for infinite)." >&2
-        echo "Usage: $0 -p \"your prompt\" -m max_runs --owner owner --repo repo [--disable-commits]" >&2
+    if [ -z "$MAX_RUNS" ] && [ -z "$MAX_COST" ]; then
+        echo "❌ Error: Either MAX_RUNS or MAX_COST is required." >&2
+        echo "Usage: $0 -p \"your prompt\" (-m max_runs | --max-cost max_cost) --owner owner --repo repo [options]" >&2
         exit 1
     fi
 
-    if ! [[ "$MAX_RUNS" =~ ^[0-9]+$ ]]; then
+    if [ -n "$MAX_RUNS" ] && ! [[ "$MAX_RUNS" =~ ^[0-9]+$ ]]; then
         echo "❌ Error: MAX_RUNS must be a non-negative integer" >&2
+        exit 1
+    fi
+
+    if [ -n "$MAX_COST" ]; then
+        if ! [[ "$MAX_COST" =~ ^[0-9]+\.?[0-9]*$ ]] || [ "$(awk "BEGIN {print ($MAX_COST <= 0)}")" = "1" ]; then
+            echo "❌ Error: MAX_COST must be a positive number" >&2
+            exit 1
+        fi
+    fi
+
+    if [[ ! "$MERGE_STRATEGY" =~ ^(squash|merge|rebase)$ ]]; then
+        echo "❌ Error: MERGE_STRATEGY must be one of: squash, merge, rebase" >&2
         exit 1
     fi
 
     if [ -z "$GITHUB_OWNER" ]; then
         echo "❌ Error: GitHub owner is required. Use --owner to provide the owner." >&2
-        echo "Usage: $0 -p \"your prompt\" -m max_runs --owner owner --repo repo [--disable-commits]" >&2
+        echo "Usage: $0 -p \"your prompt\" (-m max_runs | --max-cost max_cost) --owner owner --repo repo [options]" >&2
         exit 1
     fi
 
     if [ -z "$GITHUB_REPO" ]; then
         echo "❌ Error: GitHub repo is required. Use --repo to provide the repo." >&2
-        echo "Usage: $0 -p \"your prompt\" -m max_runs --owner owner --repo repo [--disable-commits]" >&2
+        echo "Usage: $0 -p \"your prompt\" (-m max_runs | --max-cost max_cost) --owner owner --repo repo [options]" >&2
         exit 1
     fi
 }
@@ -329,8 +351,22 @@ merge_pr_and_cleanup() {
     local iteration_display="$5"
     local current_branch="$6"
 
-    echo "🔀 $iteration_display Merging PR #$pr_number..." >&2
-    if ! gh pr merge "$pr_number" --repo "$owner/$repo" --squash >/dev/null 2>&1; then
+    # Map merge strategy to gh pr merge flag
+    local merge_flag=""
+    case "$MERGE_STRATEGY" in
+        squash)
+            merge_flag="--squash"
+            ;;
+        merge)
+            merge_flag="--merge"
+            ;;
+        rebase)
+            merge_flag="--rebase"
+            ;;
+    esac
+
+    echo "🔀 $iteration_display Merging PR #$pr_number with strategy: $MERGE_STRATEGY..." >&2
+    if ! gh pr merge "$pr_number" --repo "$owner/$repo" $merge_flag >/dev/null 2>&1; then
         echo "⚠️  $iteration_display Failed to merge PR (may have conflicts or be blocked)" >&2
         return 1
     fi
@@ -706,19 +742,38 @@ $notes_content
 }
 
 main_loop() {
-    while [ $MAX_RUNS -eq 0 ] || [ $successful_iterations -lt $MAX_RUNS ]; do
-        execute_single_iteration $i
+    while true; do
+        # Check if we should continue based on limits
+        local should_continue=false
         
-        if [ $MAX_RUNS -eq 0 ] || [ $successful_iterations -lt $MAX_RUNS ]; then
-            sleep 1
+        # Continue if MAX_RUNS is not set or not reached
+        if [ -z "$MAX_RUNS" ] || [ "$MAX_RUNS" -eq 0 ] || [ $successful_iterations -lt $MAX_RUNS ]; then
+            should_continue=true
         fi
         
+        # Stop if MAX_COST is set and reached/exceeded
+        if [ -n "$MAX_COST" ] && [ "$(awk "BEGIN {print ($total_cost >= $MAX_COST)}")" = "1" ]; then
+            should_continue=false
+        fi
+        
+        # If both limits are set and both are reached, stop
+        if [ -n "$MAX_RUNS" ] && [ "$MAX_RUNS" -ne 0 ] && [ $successful_iterations -ge $MAX_RUNS ]; then
+            should_continue=false
+        fi
+        
+        if [ "$should_continue" = "false" ]; then
+            break
+        fi
+        
+        execute_single_iteration $i
+        
+        sleep 1
         i=$((i + 1))
     done
 }
 
 show_completion_summary() {
-    if [ $MAX_RUNS -ne 0 ]; then
+    if [ -n "$MAX_RUNS" ] && [ $MAX_RUNS -ne 0 ] || [ -n "$MAX_COST" ]; then
         if [ -n "$total_cost" ] && [ "$(awk "BEGIN {print ($total_cost > 0)}")" = "1" ]; then
             printf "🎉 Done with total cost: \$%.3f\n" "$total_cost"
         else 

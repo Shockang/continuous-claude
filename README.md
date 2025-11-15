@@ -105,16 +105,21 @@ Before using `continuous-claude`, you need:
 ### Usage
 
 ```bash
-# Run with your prompt, infinite max runs, and GitHub repo
-continuous-claude --prompt "add unit tests until all code is covered" --max-runs 0 --owner AnandChowdhary --repo continuous-claude
+# Run with your prompt, max runs, and GitHub repo
+continuous-claude --prompt "add unit tests until all code is covered" --max-runs 5 --owner AnandChowdhary --repo continuous-claude
+
+# Or run with a cost budget instead
+continuous-claude --prompt "add unit tests until all code is covered" --max-cost 10.00 --owner AnandChowdhary --repo continuous-claude
 ```
 
 ## 🎯 Flags
 
 - `-p, --prompt`: Task prompt for Claude Code (required)
-- `-m, --max-runs`: Number of iterations, use `0` for infinite (required)
+- `-m, --max-runs`: Maximum number of iterations, use `0` for infinite (required unless --max-cost is provided)
+- `--max-cost`: Maximum USD to spend (required unless --max-runs is provided)
 - `--owner`: GitHub repository owner (required)
 - `--repo`: GitHub repository name (required)
+- `--merge-strategy`: Merge strategy: `squash`, `merge`, or `rebase` (default: `squash`)
 - `--git-branch-prefix`: Prefix for git branch names (default: `continuous-claude/`)
 - `--disable-commits`: Disable automatic git commits, PR creation, and merging (useful for testing)
 
@@ -126,6 +131,18 @@ continuous-claude -p "improve code quality" -m 5 --owner AnandChowdhary --repo c
 
 # Run infinitely until stopped
 continuous-claude -p "add unit tests until all code is covered" -m 0 --owner AnandChowdhary --repo continuous-claude
+
+# Run until $10 budget exhausted
+continuous-claude -p "add documentation" --max-cost 10.00 --owner AnandChowdhary --repo continuous-claude
+
+# Run max 10 iterations or $5, whichever comes first
+continuous-claude -p "refactor code" -m 10 --max-cost 5.00 --owner AnandChowdhary --repo continuous-claude
+
+# Use merge commits instead of squash
+continuous-claude -p "add features" -m 5 --owner AnandChowdhary --repo continuous-claude --merge-strategy merge
+
+# Use rebase strategy
+continuous-claude -p "update dependencies" -m 3 --owner AnandChowdhary --repo continuous-claude --merge-strategy rebase
 
 # Use custom branch prefix
 continuous-claude -p "refactor code" -m 3 --owner AnandChowdhary --repo continuous-claude --git-branch-prefix "feature/"
