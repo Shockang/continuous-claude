@@ -127,16 +127,19 @@ validate_arguments() {
         exit 1
     fi
 
-    if [ -z "$GITHUB_OWNER" ]; then
-        echo "❌ Error: GitHub owner is required. Use --owner to provide the owner." >&2
-        echo "Usage: $0 -p \"your prompt\" (-m max-runs | --max-cost max-cost) --owner owner --repo repo [options]" >&2
-        exit 1
-    fi
+    # Only require GitHub info if commits are enabled
+    if [ "$ENABLE_COMMITS" = "true" ]; then
+        if [ -z "$GITHUB_OWNER" ]; then
+            echo "❌ Error: GitHub owner is required. Use --owner to provide the owner." >&2
+            echo "Usage: $0 -p \"your prompt\" (-m max-runs | --max-cost max-cost) --owner owner --repo repo [options]" >&2
+            exit 1
+        fi
 
-    if [ -z "$GITHUB_REPO" ]; then
-        echo "❌ Error: GitHub repo is required. Use --repo to provide the repo." >&2
-        echo "Usage: $0 -p \"your prompt\" (-m max-runs | --max-cost max-cost) --owner owner --repo repo [options]" >&2
-        exit 1
+        if [ -z "$GITHUB_REPO" ]; then
+            echo "❌ Error: GitHub repo is required. Use --repo to provide the repo." >&2
+            echo "Usage: $0 -p \"your prompt\" (-m max-runs | --max-cost max-cost) --owner owner --repo repo [options]" >&2
+            exit 1
+        fi
     fi
 }
 
@@ -155,14 +158,17 @@ validate_requirements() {
         fi
     fi
 
-    if ! command -v gh &> /dev/null; then
-        echo "❌ Error: GitHub CLI (gh) is not installed: https://cli.github.com" >&2
-        exit 1
-    fi
+    # Only check for GitHub CLI if commits are enabled
+    if [ "$ENABLE_COMMITS" = "true" ]; then
+        if ! command -v gh &> /dev/null; then
+            echo "❌ Error: GitHub CLI (gh) is not installed: https://cli.github.com" >&2
+            exit 1
+        fi
 
-    if ! gh auth status >/dev/null 2>&1; then
-        echo "❌ Error: GitHub CLI is not authenticated. Run 'gh auth login' first." >&2
-        exit 1
+        if ! gh auth status >/dev/null 2>&1; then
+            echo "❌ Error: GitHub CLI is not authenticated. Run 'gh auth login' first." >&2
+            exit 1
+        fi
     fi
 }
 

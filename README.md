@@ -160,7 +160,7 @@ continuous-claude -p "test changes" -m 2 --owner AnandChowdhary --repo continuou
 continuous-claude -p "add features" -m 3 --owner AnandChowdhary --repo continuous-claude --allowedTools "Write,Read"
 
 # Use a different model
-continuous-claude -p "refactor code" -m 5 --owner AnandChowdhary --repo continuous-claude --model claude-opus-4-20250514
+continuous-claude -p "refactor code" -m 5 --owner AnandChowdhary --repo continuous-claude --model claude-haiku-4-5
 ```
 
 ## 📊 Example output
