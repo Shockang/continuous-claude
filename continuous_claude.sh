@@ -49,9 +49,58 @@ total_cost=0
 i=1
 EXTRA_CLAUDE_FLAGS=()
 
+show_help() {
+    cat << EOF
+Continuous Claude - Run Claude Code iteratively with automatic PR management
+
+USAGE:
+    continuous-claude -p "prompt" (-m max-runs | --max-cost max-cost) --owner owner --repo repo [options]
+
+REQUIRED OPTIONS:
+    -p, --prompt <text>           The prompt/goal for Claude Code to work on
+    -m, --max-runs <number>       Maximum number of successful iterations (use 0 for unlimited with --max-cost)
+    --max-cost <dollars>          Maximum cost in USD to spend (alternative to --max-runs)
+    --owner <owner>               GitHub repository owner (required unless --disable-commits)
+    --repo <repo>                 GitHub repository name (required unless --disable-commits)
+
+OPTIONAL FLAGS:
+    -h, --help                    Show this help message
+    --disable-commits             Disable automatic commits and PR creation
+    --git-branch-prefix <prefix>  Branch prefix for iterations (default: "continuous-claude/")
+    --merge-strategy <strategy>   PR merge strategy: squash, merge, or rebase (default: "squash")
+    --notes-file <file>           Shared notes file for iteration context (default: "SHARED_TASK_NOTES.md")
+
+EXAMPLES:
+    # Run 5 iterations to fix bugs
+    continuous-claude -p "Fix all linter errors" -m 5 --owner myuser --repo myproject
+
+    # Run with cost limit
+    continuous-claude -p "Add tests" --max-cost 10.00 --owner myuser --repo myproject
+
+    # Run without commits (testing mode)
+    continuous-claude -p "Refactor code" -m 3 --disable-commits
+
+    # Use custom branch prefix and merge strategy
+    continuous-claude -p "Feature work" -m 10 --owner myuser --repo myproject \\
+        --git-branch-prefix "ai/" --merge-strategy merge
+
+REQUIREMENTS:
+    - Claude Code CLI (https://claude.ai/code)
+    - GitHub CLI (gh) - authenticated with 'gh auth login'
+    - jq - JSON parsing utility
+    - Git repository (unless --disable-commits is used)
+
+For more information, visit: https://github.com/AnandChowdhary/continuous-claude
+EOF
+}
+
 parse_arguments() {
     while [[ $# -gt 0 ]]; do
         case $1 in
+            -h|--help)
+                show_help
+                exit 0
+                ;;
             -p|--prompt)
                 PROMPT="$2"
                 shift 2
@@ -100,13 +149,13 @@ parse_arguments() {
 validate_arguments() {
     if [ -z "$PROMPT" ]; then
         echo "❌ Error: Prompt is required. Use -p to provide a prompt." >&2
-        echo "Usage: $0 -p \"your prompt\" (-m max-runs | --max-cost max-cost) --owner owner --repo repo [options]" >&2
+        echo "Run '$0 --help' for usage information." >&2
         exit 1
     fi
 
     if [ -z "$MAX_RUNS" ] && [ -z "$MAX_COST" ]; then
         echo "❌ Error: Either --max-runs or --max-cost is required." >&2
-        echo "Usage: $0 -p \"your prompt\" (-m max-runs | --max-cost max-cost) --owner owner --repo repo [options]" >&2
+        echo "Run '$0 --help' for usage information." >&2
         exit 1
     fi
 
@@ -131,13 +180,13 @@ validate_arguments() {
     if [ "$ENABLE_COMMITS" = "true" ]; then
         if [ -z "$GITHUB_OWNER" ]; then
             echo "❌ Error: GitHub owner is required. Use --owner to provide the owner." >&2
-            echo "Usage: $0 -p \"your prompt\" (-m max-runs | --max-cost max-cost) --owner owner --repo repo [options]" >&2
+            echo "Run '$0 --help' for usage information." >&2
             exit 1
         fi
 
         if [ -z "$GITHUB_REPO" ]; then
             echo "❌ Error: GitHub repo is required. Use --repo to provide the repo." >&2
-            echo "Usage: $0 -p \"your prompt\" (-m max-runs | --max-cost max-cost) --owner owner --repo repo [options]" >&2
+            echo "Run '$0 --help' for usage information." >&2
             exit 1
         fi
     fi
