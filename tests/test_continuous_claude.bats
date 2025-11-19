@@ -236,3 +236,182 @@ setup() {
     assert_success
     assert_output --partial "test-prefix/iteration-1/2024-01-01-abcdef12"
 }
+
+@test "parse_arguments handles completion-signal flag" {
+    source "$SCRIPT_PATH"
+    parse_arguments --completion-signal "CUSTOM_SIGNAL"
+    
+    assert_equal "$COMPLETION_SIGNAL" "CUSTOM_SIGNAL"
+}
+
+@test "parse_arguments handles completion-threshold flag" {
+    source "$SCRIPT_PATH"
+    parse_arguments --completion-threshold 5
+    
+    assert_equal "$COMPLETION_THRESHOLD" "5"
+}
+
+@test "parse_arguments sets default completion values" {
+    source "$SCRIPT_PATH"
+    
+    assert_equal "$COMPLETION_SIGNAL" "CONTINUOUS_CLAUDE_PROJECT_COMPLETE"
+    assert_equal "$COMPLETION_THRESHOLD" "3"
+}
+
+@test "validate_arguments fails with invalid completion-threshold" {
+    source "$SCRIPT_PATH"
+    PROMPT="test"
+    MAX_RUNS="5"
+    GITHUB_OWNER="user"
+    GITHUB_REPO="repo"
+    COMPLETION_THRESHOLD="invalid"
+    
+    run validate_arguments
+    assert_failure
+    assert_output --partial "Error: --completion-threshold must be a positive integer"
+}
+
+@test "validate_arguments fails with zero completion-threshold" {
+    source "$SCRIPT_PATH"
+    PROMPT="test"
+    MAX_RUNS="5"
+    GITHUB_OWNER="user"
+    GITHUB_REPO="repo"
+    COMPLETION_THRESHOLD="0"
+    
+    run validate_arguments
+    assert_failure
+    assert_output --partial "Error: --completion-threshold must be a positive integer"
+}
+
+@test "validate_arguments passes with valid completion-threshold" {
+    source "$SCRIPT_PATH"
+    PROMPT="test"
+    MAX_RUNS="5"
+    GITHUB_OWNER="user"
+    GITHUB_REPO="repo"
+    COMPLETION_THRESHOLD="5"
+    
+    run validate_arguments
+    assert_success
+}
+
+@test "completion signal detection increments counter" {
+    source "$SCRIPT_PATH"
+    
+    # Initialize variables
+    completion_signal_count=0
+    total_cost=0
+    COMPLETION_SIGNAL="TEST_COMPLETE"
+    COMPLETION_THRESHOLD=3
+    ENABLE_COMMITS="false"
+    
+    # Mock result with completion signal
+    result='{"result": "Work done. TEST_COMPLETE", "total_cost_usd": 0.1}'
+    
+    # Mock git commands
+    function git() { return 0; }
+    export -f git
+    
+    run handle_iteration_success "(1/3)" "$result" "" "main"
+    
+    assert_success
+    assert_output --partial "Completion signal detected (1/3)"
+    # Check that counter was incremented (we'll verify this in integration test)
+}
+
+@test "completion signal detection resets counter when not found" {
+    source "$SCRIPT_PATH"
+    
+    # Initialize variables with existing count
+    completion_signal_count=2
+    total_cost=0
+    COMPLETION_SIGNAL="TEST_COMPLETE"
+    COMPLETION_THRESHOLD=3
+    ENABLE_COMMITS="false"
+    
+    # Mock result without completion signal
+    result='{"result": "Work in progress", "total_cost_usd": 0.1}'
+    
+    # Mock git commands
+    function git() { return 0; }
+    export -f git
+    
+    run handle_iteration_success "(1/3)" "$result" "" "main"
+    
+    assert_success
+    assert_output --partial "Completion signal not found, resetting counter"
+}
+
+@test "completion signal case sensitive match" {
+    source "$SCRIPT_PATH"
+    
+    completion_signal_count=0
+    total_cost=0
+    COMPLETION_SIGNAL="PROJECT_COMPLETE"
+    COMPLETION_THRESHOLD=3
+    ENABLE_COMMITS="false"
+    
+    # Test with wrong case - should NOT match
+    result='{"result": "project_complete", "total_cost_usd": 0.1}'
+    
+    function git() { return 0; }
+    export -f git
+    
+    run handle_iteration_success "(1/3)" "$result" "" "main"
+    
+    assert_success
+    # Should not see the detection message
+    refute_output --partial "Completion signal detected"
+}
+
+@test "completion signal partial match works" {
+    source "$SCRIPT_PATH"
+    
+    completion_signal_count=0
+    total_cost=0
+    COMPLETION_SIGNAL="DONE"
+    COMPLETION_THRESHOLD=3
+    ENABLE_COMMITS="false"
+    
+    # Signal in middle of text
+    result='{"result": "All work is DONE and committed", "total_cost_usd": 0.1}'
+    
+    function git() { return 0; }
+    export -f git
+    
+    run handle_iteration_success "(1/3)" "$result" "" "main"
+    
+    assert_success
+    assert_output --partial "Completion signal detected (1/3)"
+}
+
+@test "show_completion_summary shows signal message" {
+    source "$SCRIPT_PATH"
+    
+    completion_signal_count=3
+    total_cost=0.5
+    COMPLETION_THRESHOLD=3
+    MAX_RUNS=10
+    
+    run show_completion_summary
+    
+    assert_success
+    assert_output --partial "Project completed! Detected completion signal 3 times in a row"
+    assert_output --partial "Total cost: \$0.500"
+}
+
+@test "show_completion_summary shows signal message without cost" {
+    source "$SCRIPT_PATH"
+    
+    completion_signal_count=3
+    total_cost=0
+    COMPLETION_THRESHOLD=3
+    MAX_RUNS=10
+    
+    run show_completion_summary
+    
+    assert_success
+    assert_output --partial "Project completed! Detected completion signal 3 times in a row"
+    refute_output --partial "Total cost"
+}
