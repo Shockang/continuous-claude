@@ -10,6 +10,11 @@ setup() {
     export TESTING="true"
 }
 
+@test "script has valid bash syntax" {
+    run bash -n "$SCRIPT_PATH"
+    assert_success
+}
+
 @test "show_help displays help message" {
     source "$SCRIPT_PATH"
     # We need to call the function directly to capture output in the current shell

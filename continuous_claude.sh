@@ -684,7 +684,7 @@ continuous_claude_commit() {
     sleep 5
     if ! wait_for_pr_checks "$pr_number" "$GITHUB_OWNER" "$GITHUB_REPO" "$iteration_display"; then
         echo "⚠️  $iteration_display PR checks failed or timed out, closing PR..." >&2
-        gh pr close "$pr_number" --repo "$GITHUB_OWNER/$GITHUB_REPO" timeout" >/dev/null 2>&1 || true
+        gh pr close "$pr_number" --repo "$GITHUB_OWNER/$GITHUB_REPO" >/dev/null 2>&1 || true
         echo "🗑️  $iteration_display Cleaning up local branch: $branch_name" >&2
         git checkout "$main_branch" >/dev/null 2>&1
         git branch -D "$branch_name" >/dev/null 2>&1 || true
