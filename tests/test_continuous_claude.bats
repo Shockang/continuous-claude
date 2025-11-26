@@ -843,3 +843,237 @@ setup() {
     assert_success
     assert_output --partial "You're on a newer version"
 }
+
+@test "detect_github_repo detects HTTPS URL" {
+    source "$SCRIPT_PATH"
+    
+    # Mock git commands
+    function git() {
+        if [ "$1" = "rev-parse" ] && [ "$2" = "--git-dir" ]; then
+            return 0
+        elif [ "$1" = "remote" ] && [ "$2" = "get-url" ] && [ "$3" = "origin" ]; then
+            echo "https://github.com/testowner/testrepo.git"
+            return 0
+        fi
+        return 1
+    }
+    export -f git
+    
+    run detect_github_repo
+    
+    assert_success
+    assert_output "testowner testrepo"
+}
+
+@test "detect_github_repo detects HTTPS URL without .git" {
+    source "$SCRIPT_PATH"
+    
+    # Mock git commands
+    function git() {
+        if [ "$1" = "rev-parse" ] && [ "$2" = "--git-dir" ]; then
+            return 0
+        elif [ "$1" = "remote" ] && [ "$2" = "get-url" ] && [ "$3" = "origin" ]; then
+            echo "https://github.com/testowner/testrepo"
+            return 0
+        fi
+        return 1
+    }
+    export -f git
+    
+    run detect_github_repo
+    
+    assert_success
+    assert_output "testowner testrepo"
+}
+
+@test "detect_github_repo detects SSH URL" {
+    source "$SCRIPT_PATH"
+    
+    # Mock git commands
+    function git() {
+        if [ "$1" = "rev-parse" ] && [ "$2" = "--git-dir" ]; then
+            return 0
+        elif [ "$1" = "remote" ] && [ "$2" = "get-url" ] && [ "$3" = "origin" ]; then
+            echo "git@github.com:testowner/testrepo.git"
+            return 0
+        fi
+        return 1
+    }
+    export -f git
+    
+    run detect_github_repo
+    
+    assert_success
+    assert_output "testowner testrepo"
+}
+
+@test "detect_github_repo detects SSH URL without .git" {
+    source "$SCRIPT_PATH"
+    
+    # Mock git commands
+    function git() {
+        if [ "$1" = "rev-parse" ] && [ "$2" = "--git-dir" ]; then
+            return 0
+        elif [ "$1" = "remote" ] && [ "$2" = "get-url" ] && [ "$3" = "origin" ]; then
+            echo "git@github.com:testowner/testrepo"
+            return 0
+        fi
+        return 1
+    }
+    export -f git
+    
+    run detect_github_repo
+    
+    assert_success
+    assert_output "testowner testrepo"
+}
+
+@test "detect_github_repo fails when not in git repo" {
+    source "$SCRIPT_PATH"
+    
+    # Mock git to fail
+    function git() {
+        if [ "$1" = "rev-parse" ] && [ "$2" = "--git-dir" ]; then
+            return 1
+        fi
+        return 1
+    }
+    export -f git
+    
+    run detect_github_repo
+    
+    assert_failure
+}
+
+@test "detect_github_repo fails when no origin remote" {
+    source "$SCRIPT_PATH"
+    
+    # Mock git commands
+    function git() {
+        if [ "$1" = "rev-parse" ] && [ "$2" = "--git-dir" ]; then
+            return 0
+        elif [ "$1" = "remote" ] && [ "$2" = "get-url" ] && [ "$3" = "origin" ]; then
+            return 1
+        fi
+        return 1
+    }
+    export -f git
+    
+    run detect_github_repo
+    
+    assert_failure
+}
+
+@test "detect_github_repo fails for non-GitHub URL" {
+    source "$SCRIPT_PATH"
+    
+    # Mock git commands
+    function git() {
+        if [ "$1" = "rev-parse" ] && [ "$2" = "--git-dir" ]; then
+            return 0
+        elif [ "$1" = "remote" ] && [ "$2" = "get-url" ] && [ "$3" = "origin" ]; then
+            echo "https://gitlab.com/testowner/testrepo.git"
+            return 0
+        fi
+        return 1
+    }
+    export -f git
+    
+    run detect_github_repo
+    
+    assert_failure
+}
+
+@test "validate_arguments auto-detects owner and repo" {
+    source "$SCRIPT_PATH"
+    
+    # Set up environment
+    PROMPT="test"
+    MAX_RUNS="5"
+    ENABLE_COMMITS="true"
+    GITHUB_OWNER=""
+    GITHUB_REPO=""
+    
+    # Mock detect_github_repo
+    function detect_github_repo() {
+        echo "autoowner autorepo"
+        return 0
+    }
+    export -f detect_github_repo
+    
+    # Call validate_arguments directly (not with run) so variable changes persist
+    validate_arguments
+    
+    assert_equal "$GITHUB_OWNER" "autoowner"
+    assert_equal "$GITHUB_REPO" "autorepo"
+}
+
+@test "validate_arguments uses provided owner over auto-detect" {
+    source "$SCRIPT_PATH"
+    
+    # Set up environment
+    PROMPT="test"
+    MAX_RUNS="5"
+    ENABLE_COMMITS="true"
+    GITHUB_OWNER="manualowner"
+    GITHUB_REPO=""
+    
+    # Mock detect_github_repo
+    function detect_github_repo() {
+        echo "autoowner autorepo"
+        return 0
+    }
+    export -f detect_github_repo
+    
+    # Call validate_arguments directly (not with run) so variable changes persist
+    validate_arguments
+    
+    assert_equal "$GITHUB_OWNER" "manualowner"
+    assert_equal "$GITHUB_REPO" "autorepo"
+}
+
+@test "validate_arguments uses provided repo over auto-detect" {
+    source "$SCRIPT_PATH"
+    
+    # Set up environment
+    PROMPT="test"
+    MAX_RUNS="5"
+    ENABLE_COMMITS="true"
+    GITHUB_OWNER=""
+    GITHUB_REPO="manualrepo"
+    
+    # Mock detect_github_repo
+    function detect_github_repo() {
+        echo "autoowner autorepo"
+        return 0
+    }
+    export -f detect_github_repo
+    
+    # Call validate_arguments directly (not with run) so variable changes persist
+    validate_arguments
+    
+    assert_equal "$GITHUB_OWNER" "autoowner"
+    assert_equal "$GITHUB_REPO" "manualrepo"
+}
+
+@test "validate_arguments fails when auto-detect fails and no flags provided" {
+    source "$SCRIPT_PATH"
+    
+    # Set up environment
+    PROMPT="test"
+    MAX_RUNS="5"
+    ENABLE_COMMITS="true"
+    GITHUB_OWNER=""
+    GITHUB_REPO=""
+    
+    # Mock detect_github_repo to fail
+    function detect_github_repo() {
+        return 1
+    }
+    export -f detect_github_repo
+    
+    run validate_arguments
+    
+    assert_failure
+    assert_output --partial "GitHub owner is required"
+}

@@ -66,19 +66,19 @@ show_help() {
 Continuous Claude - Run Claude Code iteratively with automatic PR management
 
 USAGE:
-    continuous-claude -p "prompt" (-m max-runs | --max-cost max-cost) --owner owner --repo repo [options]
+    continuous-claude -p "prompt" (-m max-runs | --max-cost max-cost) [--owner owner] [--repo repo] [options]
     continuous-claude update
 
 REQUIRED OPTIONS:
     -p, --prompt <text>           The prompt/goal for Claude Code to work on
     -m, --max-runs <number>       Maximum number of successful iterations (use 0 for unlimited with --max-cost)
     --max-cost <dollars>          Maximum cost in USD to spend (alternative to --max-runs)
-    --owner <owner>               GitHub repository owner (required unless --disable-commits)
-    --repo <repo>                 GitHub repository name (required unless --disable-commits)
 
 OPTIONAL FLAGS:
     -h, --help                    Show this help message
     -v, --version                 Show version information
+    --owner <owner>               GitHub repository owner (auto-detected from git remote if not provided)
+    --repo <repo>                 GitHub repository name (auto-detected from git remote if not provided)
     --disable-commits             Disable automatic commits and PR creation
     --git-branch-prefix <prefix>  Branch prefix for iterations (default: "continuous-claude/")
     --merge-strategy <strategy>   PR merge strategy: squash, merge, or rebase (default: "squash")
@@ -371,6 +371,51 @@ handle_update_command() {
     fi
 }
 
+detect_github_repo() {
+    # Try to detect GitHub owner and repo from git remote
+    # Returns: "owner repo" on success, empty string on failure
+    
+    # Check if we're in a git repository
+    if ! git rev-parse --git-dir > /dev/null 2>&1; then
+        return 1
+    fi
+    
+    # Try to get the origin remote URL
+    local remote_url
+    if ! remote_url=$(git remote get-url origin 2>/dev/null); then
+        return 1
+    fi
+    
+    # Parse GitHub URL (supports both HTTPS and SSH formats)
+    # HTTPS: https://github.com/owner/repo.git or https://github.com/owner/repo
+    # SSH: git@github.com:owner/repo.git or git@github.com:owner/repo
+    local owner=""
+    local repo=""
+    
+    if [[ "$remote_url" =~ ^https://github\.com/([^/]+)/([^/]+)$ ]]; then
+        # HTTPS format
+        owner="${BASH_REMATCH[1]}"
+        repo="${BASH_REMATCH[2]}"
+    elif [[ "$remote_url" =~ ^git@github\.com:([^/]+)/([^/]+)$ ]]; then
+        # SSH format
+        owner="${BASH_REMATCH[1]}"
+        repo="${BASH_REMATCH[2]}"
+    else
+        return 1
+    fi
+    
+    # Remove .git suffix if present
+    repo="${repo%.git}"
+    
+    # Validate that we got both owner and repo
+    if [ -z "$owner" ] || [ -z "$repo" ]; then
+        return 1
+    fi
+    
+    echo "$owner $repo"
+    return 0
+}
+
 parse_arguments() {
     while [[ $# -gt 0 ]]; do
         case $1 in
@@ -494,14 +539,33 @@ validate_arguments() {
 
     # Only require GitHub info if commits are enabled
     if [ "$ENABLE_COMMITS" = "true" ]; then
+        # Auto-detect owner and repo if not provided
+        if [ -z "$GITHUB_OWNER" ] || [ -z "$GITHUB_REPO" ]; then
+            local detected_info
+            if detected_info=$(detect_github_repo); then
+                # Parse the detected owner and repo
+                local detected_owner=$(echo "$detected_info" | awk '{print $1}')
+                local detected_repo=$(echo "$detected_info" | awk '{print $2}')
+                
+                # Only use detected values if not already provided
+                if [ -z "$GITHUB_OWNER" ]; then
+                    GITHUB_OWNER="$detected_owner"
+                fi
+                if [ -z "$GITHUB_REPO" ]; then
+                    GITHUB_REPO="$detected_repo"
+                fi
+            fi
+        fi
+        
+        # After detection attempt, verify both are set
         if [ -z "$GITHUB_OWNER" ]; then
-            echo "❌ Error: GitHub owner is required. Use --owner to provide the owner." >&2
+            echo "❌ Error: GitHub owner is required. Use --owner to provide the owner, or run from a git repository with a GitHub remote." >&2
             echo "Run '$0 --help' for usage information." >&2
             exit 1
         fi
 
         if [ -z "$GITHUB_REPO" ]; then
-            echo "❌ Error: GitHub repo is required. Use --repo to provide the repo." >&2
+            echo "❌ Error: GitHub repo is required. Use --repo to provide the repo, or run from a git repository with a GitHub remote." >&2
             echo "Run '$0 --help' for usage information." >&2
             exit 1
         fi
