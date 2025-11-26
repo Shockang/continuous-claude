@@ -1,5 +1,31 @@
 # CHANGELOG
 
+## [v0.11.1] - 2025-11-26
+
+### What's Changed
+
+- :bug: Fix updates, allow skipping and timeouts (666a85d)
+- :bookmark: Update continuous_claude.sh for improved functionality (ea527b9)
+- :construction_worker: Regenerate checksum for continuous_claude.sh during release process (7eba78e)
+
+**Full Changelog**: https://github.com/AnandChowdhary/continuous-claude/compare/v0.11.0...v0.11.1
+
+### Installation
+
+Install with a single command:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.11.1/install.sh | bash
+```
+
+Or download the script directly:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.11.1/continuous_claude.sh -o continuous-claude
+chmod +x continuous-claude
+sudo mv continuous-claude /usr/local/bin/
+```
+
 ## [v0.11.0] - 2025-11-26
 
 ### What's Changed
