@@ -8,22 +8,6 @@
 
 **Full Changelog**: https://github.com/AnandChowdhary/continuous-claude/compare/v0.12.0...v0.13.0
 
-### Installation
-
-Install with a single command:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.13.0/install.sh | bash
-```
-
-Or download the script directly:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.13.0/continuous_claude.sh -o continuous-claude
-chmod +x continuous-claude
-sudo mv continuous-claude /usr/local/bin/
-```
-
 ## [v0.12.0] - 2025-11-26
 
 ### What's Changed
@@ -31,22 +15,6 @@ sudo mv continuous-claude /usr/local/bin/
 - :sparkles: Add --max-duration flag for time-boxed execution (#35) (c21bd35)
 
 **Full Changelog**: https://github.com/AnandChowdhary/continuous-claude/compare/v0.11.1...v0.12.0
-
-### Installation
-
-Install with a single command:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.12.0/install.sh | bash
-```
-
-Or download the script directly:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.12.0/continuous_claude.sh -o continuous-claude
-chmod +x continuous-claude
-sudo mv continuous-claude /usr/local/bin/
-```
 
 ## [v0.11.1] - 2025-11-26
 
@@ -58,22 +26,6 @@ sudo mv continuous-claude /usr/local/bin/
 
 **Full Changelog**: https://github.com/AnandChowdhary/continuous-claude/compare/v0.11.0...v0.11.1
 
-### Installation
-
-Install with a single command:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.11.1/install.sh | bash
-```
-
-Or download the script directly:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.11.1/continuous_claude.sh -o continuous-claude
-chmod +x continuous-claude
-sudo mv continuous-claude /usr/local/bin/
-```
-
 ## [v0.11.0] - 2025-11-26
 
 ### What's Changed
@@ -81,22 +33,6 @@ sudo mv continuous-claude /usr/local/bin/
 - :sparkles: Auto-detect GitHub owner and repo from git remote (#33) (1c76c30)
 
 **Full Changelog**: https://github.com/AnandChowdhary/continuous-claude/compare/v0.10.0...v0.11.0
-
-### Installation
-
-Install with a single command:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.11.0/install.sh | bash
-```
-
-Or download the script directly:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.11.0/continuous_claude.sh -o continuous-claude
-chmod +x continuous-claude
-sudo mv continuous-claude /usr/local/bin/
-```
 
 ## [v0.10.0] - 2025-11-26
 
@@ -106,22 +42,6 @@ sudo mv continuous-claude /usr/local/bin/
 
 **Full Changelog**: https://github.com/AnandChowdhary/continuous-claude/compare/v0.9.1...v0.10.0
 
-### Installation
-
-Install with a single command:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.10.0/install.sh | bash
-```
-
-Or download the script directly:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.10.0/continuous_claude.sh -o continuous-claude
-chmod +x continuous-claude
-sudo mv continuous-claude /usr/local/bin/
-```
-
 ## [v0.9.1] - 2025-11-24
 
 ### What's Changed
@@ -129,22 +49,6 @@ sudo mv continuous-claude /usr/local/bin/
 - :bug: Handle Claude Code array output format (#24) (bdf9261)
 
 **Full Changelog**: https://github.com/AnandChowdhary/continuous-claude/compare/v0.9.0...v0.9.1
-
-### Installation
-
-Install with a single command:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.9.1/install.sh | bash
-```
-
-Or download the script directly:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.9.1/continuous_claude.sh -o continuous-claude
-chmod +x continuous-claude
-sudo mv continuous-claude /usr/local/bin/
-```
 
 ## [v0.9.0] - 2025-11-21
 
@@ -154,22 +58,6 @@ sudo mv continuous-claude /usr/local/bin/
 
 **Full Changelog**: https://github.com/AnandChowdhary/continuous-claude/compare/v0.8.5...v0.9.0
 
-### Installation
-
-Install with a single command:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.9.0/install.sh | bash
-```
-
-Or download the script directly:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.9.0/continuous_claude.sh -o continuous-claude
-chmod +x continuous-claude
-sudo mv continuous-claude /usr/local/bin/
-```
-
 ## [v0.8.5] - 2025-11-20
 
 ### What's Changed
@@ -177,22 +65,6 @@ sudo mv continuous-claude /usr/local/bin/
 - :bug: Enhance error handling in run_claude_iteration (64e8386)
 
 **Full Changelog**: https://github.com/AnandChowdhary/continuous-claude/compare/v0.8.4...v0.8.5
-
-### Installation
-
-Install with a single command:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.8.5/install.sh | bash
-```
-
-Or download the script directly:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.8.5/continuous_claude.sh -o continuous-claude
-chmod +x continuous-claude
-sudo mv continuous-claude /usr/local/bin/
-```
 
 ## [v0.8.4] - 2025-11-20
 
@@ -205,22 +77,6 @@ sudo mv continuous-claude /usr/local/bin/
 
 **Full Changelog**: https://github.com/AnandChowdhary/continuous-claude/compare/v0.8.3...v0.8.4
 
-### Installation
-
-Install with a single command:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.8.4/install.sh | bash
-```
-
-Or download the script directly:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.8.4/continuous_claude.sh -o continuous-claude
-chmod +x continuous-claude
-sudo mv continuous-claude /usr/local/bin/
-```
-
 ## [v0.8.3] - 2025-11-20
 
 ### What's Changed
@@ -230,22 +86,6 @@ sudo mv continuous-claude /usr/local/bin/
 
 **Full Changelog**: https://github.com/AnandChowdhary/continuous-claude/compare/v0.8.2...v0.8.3
 
-### Installation
-
-Install with a single command:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.8.3/install.sh | bash
-```
-
-Or download the script directly:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.8.3/continuous_claude.sh -o continuous-claude
-chmod +x continuous-claude
-sudo mv continuous-claude /usr/local/bin/
-```
-
 ## [v0.8.2] - 2025-11-20
 
 ### What's Changed
@@ -253,22 +93,6 @@ sudo mv continuous-claude /usr/local/bin/
 - :bug: Fix commit message prompt to include new files (0157de3)
 
 **Full Changelog**: https://github.com/AnandChowdhary/continuous-claude/compare/v0.8.1...v0.8.2
-
-### Installation
-
-Install with a single command:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.8.2/install.sh | bash
-```
-
-Or download the script directly:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.8.2/continuous_claude.sh -o continuous-claude
-chmod +x continuous-claude
-sudo mv continuous-claude /usr/local/bin/
-```
 
 ## [v0.8.1] - 2025-11-20
 
@@ -278,22 +102,6 @@ sudo mv continuous-claude /usr/local/bin/
 
 **Full Changelog**: https://github.com/AnandChowdhary/continuous-claude/compare/v0.8.0...v0.8.1
 
-### Installation
-
-Install with a single command:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.8.1/install.sh | bash
-```
-
-Or download the script directly:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.8.1/continuous_claude.sh -o continuous-claude
-chmod +x continuous-claude
-sudo mv continuous-claude /usr/local/bin/
-```
-
 ## [v0.8.0] - 2025-11-19
 
 ### What's Changed
@@ -301,22 +109,6 @@ sudo mv continuous-claude /usr/local/bin/
 - :sparkles: Add PR branch update process (13db4cf)
 
 **Full Changelog**: https://github.com/AnandChowdhary/continuous-claude/compare/v0.7.0...v0.8.0
-
-### Installation
-
-Install with a single command:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.8.0/install.sh | bash
-```
-
-Or download the script directly:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.8.0/continuous_claude.sh -o continuous-claude
-chmod +x continuous-claude
-sudo mv continuous-claude /usr/local/bin/
-```
 
 ## [v0.7.0] - 2025-11-19
 
@@ -329,22 +121,6 @@ sudo mv continuous-claude /usr/local/bin/
 
 **Full Changelog**: https://github.com/AnandChowdhary/continuous-claude/compare/v0.6.4...v0.7.0
 
-### Installation
-
-Install with a single command:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.7.0/install.sh | bash
-```
-
-Or download the script directly:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.7.0/continuous_claude.sh -o continuous-claude
-chmod +x continuous-claude
-sudo mv continuous-claude /usr/local/bin/
-```
-
 ## [v0.6.4] - 2025-11-19
 
 ## What's Changed
@@ -352,22 +128,6 @@ sudo mv continuous-claude /usr/local/bin/
 - :white_check_mark: Add new tests for `validate_requirements`, `get_iteration_display`, `parse_claude_result`, and `create_iteration_branch` functions. (a8dfb39)
 
 **Full Changelog**: https://github.com/AnandChowdhary/continuous-claude/compare/v0.6.3...v0.6.4
-
-## Installation
-
-Install with a single command:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.6.4/install.sh | bash
-```
-
-Or download the script directly:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.6.4/continuous_claude.sh -o continuous-claude
-chmod +x continuous-claude
-sudo mv continuous-claude /usr/local/bin/
-```
 
 ## [v0.6.3] - 2025-11-19
 
@@ -378,22 +138,6 @@ sudo mv continuous-claude /usr/local/bin/
 
 **Full Changelog**: https://github.com/AnandChowdhary/continuous-claude/compare/v0.6.2...v0.6.3
 
-## Installation
-
-Install with a single command:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.6.3/install.sh | bash
-```
-
-Or download the script directly:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.6.3/continuous_claude.sh -o continuous-claude
-chmod +x continuous-claude
-sudo mv continuous-claude /usr/local/bin/
-```
-
 ## [v0.6.2] - 2025-11-19
 
 ## What's Changed
@@ -402,24 +146,6 @@ sudo mv continuous-claude /usr/local/bin/
 - :bug: Remove accidental submodules and ignore tests/libs (af28abf)
 
 **Full Changelog**: https://github.com/AnandChowdhary/continuous-claude/compare/v0.6.1...v0.6.2
-
-## Installation
-
-Install with a single command:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.6.2/install.sh | bash
-```
-
-Or download the script directly:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.6.2/continuous_claude.sh -o continuous-claude
-chmod +x continuous-claude
-sudo mv continuous-claude /usr/local/bin/
-```
-
-
 
 ## [v0.6.1] - 2025-11-19
 
@@ -430,24 +156,6 @@ sudo mv continuous-claude /usr/local/bin/
 
 **Full Changelog**: https://github.com/AnandChowdhary/continuous-claude/compare/v0.6.0...v0.6.1
 
-## Installation
-
-Install with a single command:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.6.1/install.sh | bash
-```
-
-Or download the script directly:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.6.1/continuous_claude.sh -o continuous-claude
-chmod +x continuous-claude
-sudo mv continuous-claude /usr/local/bin/
-```
-
-
-
 ## [v0.6.0] - 2025-11-19
 
 ## What's Changed
@@ -457,24 +165,6 @@ sudo mv continuous-claude /usr/local/bin/
 
 **Full Changelog**: https://github.com/AnandChowdhary/continuous-claude/compare/v0.5.1...v0.6.0
 
-## Installation
-
-Install with a single command:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.6.0/install.sh | bash
-```
-
-Or download the script directly:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.6.0/continuous_claude.sh -o continuous-claude
-chmod +x continuous-claude
-sudo mv continuous-claude /usr/local/bin/
-```
-
-
-
 ## [v0.5.1] - 2025-11-17
 
 ## What's Changed
@@ -483,24 +173,6 @@ sudo mv continuous-claude /usr/local/bin/
 - :pencil: Revise README story (a8a0aa0)
 
 **Full Changelog**: https://github.com/AnandChowdhary/continuous-claude/compare/v0.5.0...v0.5.1
-
-## Installation
-
-Install with a single command:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.5.1/install.sh | bash
-```
-
-Or download the script directly:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.5.1/continuous_claude.sh -o continuous-claude
-chmod +x continuous-claude
-sudo mv continuous-claude /usr/local/bin/
-```
-
-
 
 ## [v0.5.0] - 2025-11-17
 
@@ -512,24 +184,6 @@ sudo mv continuous-claude /usr/local/bin/
 
 **Full Changelog**: https://github.com/AnandChowdhary/continuous-claude/compare/v0.4.0...v0.5.0
 
-## Installation
-
-Install with a single command:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.5.0/install.sh | bash
-```
-
-Or download the script directly:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.5.0/continuous_claude.sh -o continuous-claude
-chmod +x continuous-claude
-sudo mv continuous-claude /usr/local/bin/
-```
-
-
-
 ## [v0.4.0] - 2025-11-17
 
 ## What's Changed
@@ -540,24 +194,6 @@ sudo mv continuous-claude /usr/local/bin/
 
 **Full Changelog**: https://github.com/AnandChowdhary/continuous-claude/compare/v0.3.2...v0.4.0
 
-## Installation
-
-Install with a single command:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.4.0/install.sh | bash
-```
-
-Or download the script directly:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.4.0/continuous_claude.sh -o continuous-claude
-chmod +x continuous-claude
-sudo mv continuous-claude /usr/local/bin/
-```
-
-
-
 ## [v0.3.2] - 2025-11-17
 
 ## What's Changed
@@ -565,24 +201,6 @@ sudo mv continuous-claude /usr/local/bin/
 - :bookmark: Update installation commands in release workflow (0058d41)
 
 **Full Changelog**: https://github.com/AnandChowdhary/continuous-claude/compare/v0.3.1...v0.3.2
-
-## Installation
-
-Install with a single command:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.3.2/install.sh | bash
-```
-
-Or download the script directly:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.3.2/continuous_claude.sh -o continuous-claude
-chmod +x continuous-claude
-sudo mv continuous-claude /usr/local/bin/
-```
-
-
 
 ## [v0.3.1] - 2025-11-17
 
@@ -592,24 +210,6 @@ sudo mv continuous-claude /usr/local/bin/
 
 **Full Changelog**: https://github.com/AnandChowdhary/continuous-claude/compare/v0.3.0...v0.3.1
 
-## Installation
-
-Install with a single command:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/main/install.sh | bash
-```
-
-Or download the script directly:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/main/continuous_claude.sh -o continuous-claude
-chmod +x continuous-claude
-sudo mv continuous-claude /usr/local/bin/
-```
-
-
-
 ## [v0.3.0] - 2025-11-17
 
 ## What's Changed
@@ -617,24 +217,6 @@ sudo mv continuous-claude /usr/local/bin/
 - :sparkles: Add support for forwarding additional Claude Code CLI flags (#21) (b1822b3)
 
 **Full Changelog**: https://github.com/AnandChowdhary/continuous-claude/compare/v0.2.0...v0.3.0
-
-## Installation
-
-Install with a single command:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/main/install.sh | bash
-```
-
-Or download the script directly:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/main/continuous_claude.sh -o continuous-claude
-chmod +x continuous-claude
-sudo mv continuous-claude /usr/local/bin/
-```
-
-
 
 ## [v0.2.0] - 2025-11-16
 
@@ -644,24 +226,6 @@ sudo mv continuous-claude /usr/local/bin/
 
 **Full Changelog**: https://github.com/AnandChowdhary/continuous-claude/compare/v0.1.1...v0.2.0
 
-## Installation
-
-Install with a single command:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/main/install.sh | bash
-```
-
-Or download the script directly:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/main/continuous_claude.sh -o continuous-claude
-chmod +x continuous-claude
-sudo mv continuous-claude /usr/local/bin/
-```
-
-
-
 ## [v0.1.1] - 2025-11-15
 
 ## What's Changed
@@ -669,24 +233,6 @@ sudo mv continuous-claude /usr/local/bin/
 - :pencil: Revise output example in README.md (4a7ba33)
 
 **Full Changelog**: https://github.com/AnandChowdhary/continuous-claude/compare/v0.1.0...v0.1.1
-
-## Installation
-
-Install with a single command:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/main/install.sh | bash
-```
-
-Or download the script directly:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/main/continuous_claude.sh -o continuous-claude
-chmod +x continuous-claude
-sudo mv continuous-claude /usr/local/bin/
-```
-
-
 
 ## [v0.1.0] - 2025-11-15
 
@@ -698,24 +244,6 @@ sudo mv continuous-claude /usr/local/bin/
 
 **Full Changelog**: https://github.com/AnandChowdhary/continuous-claude/compare/v0.0.3...v0.1.0
 
-## Installation
-
-Install with a single command:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/main/install.sh | bash
-```
-
-Or download the script directly:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/main/continuous_claude.sh -o continuous-claude
-chmod +x continuous-claude
-sudo mv continuous-claude /usr/local/bin/
-```
-
-
-
 ## [v0.0.3] - 2025-11-15
 
 ## What's Changed
@@ -724,24 +252,6 @@ sudo mv continuous-claude /usr/local/bin/
 
 **Full Changelog**: https://github.com/AnandChowdhary/continuous-claude/compare/v0.0.2...v0.0.3
 
-## Installation
-
-Install with a single command:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/main/install.sh | bash
-```
-
-Or download the script directly:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/main/continuous_claude.sh -o continuous-claude
-chmod +x continuous-claude
-sudo mv continuous-claude /usr/local/bin/
-```
-
-
-
 ## [v0.0.2] - 2025-11-15
 
 ## What's Changed
@@ -749,24 +259,6 @@ sudo mv continuous-claude /usr/local/bin/
 - :pencil: Update README.md to consolidate uninstall instructions (6d4174a)
 
 **Full Changelog**: https://github.com/AnandChowdhary/continuous-claude/compare/v0.0.1...v0.0.2
-
-## Installation
-
-Install with a single command:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/main/install.sh | bash
-```
-
-Or download the script directly:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/main/continuous_claude.sh -o continuous-claude
-chmod +x continuous-claude
-sudo mv continuous-claude /usr/local/bin/
-```
-
-
 
 ## [v0.0.1] - 2025-11-15
 
@@ -816,7 +308,7 @@ sudo mv continuous-claude /usr/local/bin/
 - :sparkles: Enhance continuous_claude.sh with GitHub integration and error handling (83d2bcf)
 - :sparkles: Enhance continuous_claude.sh with dynamic branch creation (bbb9c1a)
 - :recycle: Refactor continuous_claude.sh into modular functions (d162c2b)
-- :truck: Rename run_claude ->  continuous_claude.sh (74a45a5)
+- :truck: Rename run_claude -> continuous_claude.sh (74a45a5)
 - 📃 Add MIT license (073535e)
 - :pencil: Update README with quick start instructions (39210f8)
 - :pencil: Add basic README (0d34bca)
@@ -827,22 +319,3 @@ sudo mv continuous-claude /usr/local/bin/
 - :sparkles: Add loop for running Claude Code (44f0aac)
 
 **Full Changelog**: https://github.com/AnandChowdhary/continuous-claude/compare/v0.0.0...v0.0.1
-
-## Installation
-
-Install with a single command:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/main/install.sh | bash
-```
-
-Or download the script directly:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/main/continuous_claude.sh -o continuous-claude
-chmod +x continuous-claude
-sudo mv continuous-claude /usr/local/bin/
-```
-
-
-

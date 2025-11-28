@@ -246,11 +246,11 @@ jobs:
 
           EOF
 
-          # Append the body from release_notes.md (skipping the title if it's redundant, but our release_notes.md has headers)
+          # Append the body from release_notes.md (excluding installation section)
           # Our release_notes.md starts with "## What's Changed". 
-          # Let's just dump the whole release_notes.md content into the changelog entry for now.
+          # Extract only the release notes (up to but not including "## Installation")
           # Replace ## with ### to maintain proper header hierarchy
-          sed 's/^## /### /' release_notes.md >> new_entry.md
+          sed '/^## Installation$/,$d' release_notes.md | sed 's/^## /### /' >> new_entry.md
           echo "" >> new_entry.md
 
           # If CHANGELOG.md exists (which it should now), we need to insert new_entry.md after the header
