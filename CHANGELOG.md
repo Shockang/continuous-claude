@@ -1,5 +1,29 @@
 # CHANGELOG
 
+## [v0.13.0] - 2025-11-28
+
+### What's Changed
+
+- :sparkles: Show PR title after merge complete (#38) (2039502)
+
+**Full Changelog**: https://github.com/AnandChowdhary/continuous-claude/compare/v0.12.0...v0.13.0
+
+### Installation
+
+Install with a single command:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.13.0/install.sh | bash
+```
+
+Or download the script directly:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/AnandChowdhary/continuous-claude/refs/tags/v0.13.0/continuous_claude.sh -o continuous-claude
+chmod +x continuous-claude
+sudo mv continuous-claude /usr/local/bin/
+```
+
 ## [v0.12.0] - 2025-11-26
 
 ### What's Changed
