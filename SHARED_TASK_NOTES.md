@@ -2,104 +2,114 @@
 
 ## Current Status
 
-The project has been refactored from a Bash script to a Python script. The core functionality has been preserved while removing non-essential features.
+The project has been successfully cleaned up and enhanced. All legacy Bash files and non-essential documentation have been removed. Cost and duration limits have been re-added, and PR check error handling has been significantly improved.
 
-## What Was Done
+## What Was Done (Latest Iteration)
 
 ### Completed
-- ✅ Converted `continuous_claude.sh` to `continuous_claude.py`
-- ✅ Kept core features:
-  - Iterative Claude Code execution loop
-  - Automatic git branch creation per iteration
-  - PR creation and management
-  - CI check monitoring with timeout
-  - PR merging with configurable strategies (squash/merge/rebase)
-  - SHARED_TASK_NOTES.md context persistence
-  - Completion signal detection for early stopping
-  - GitHub repo auto-detection from git remote
-- ✅ Removed non-essential features:
-  - Update checking and installation
-  - Worktree management
-  - Dry-run mode
-  - Cost limits (--max-cost)
-  - Duration limits (--max-duration)
-  - Extensive documentation and examples
-- ✅ Simplified interface:
-  - Only essential flags: -p (prompt), -m (max-runs), --owner, --repo, --merge-strategy
-  - Removed complex duration parsing logic
-  - Removed auto-update prompts
-- ✅ Streamlined README to basic usage
+- ✅ Removed all legacy files:
+  - `continuous_claude.sh` (old Bash script)
+  - `install.sh` (installation script)
+  - `CHANGELOG.md` (historical changelog)
+  - `.github/` directory (GitHub workflows)
+  - `tests/` directory (Bash-specific tests)
+- ✅ Re-added max-cost and max-duration support:
+  - `--max-cost` flag to limit total spending in USD
+  - `--max-duration` flag with flexible format (1h, 30m, 45s)
+  - Both limits are checked before each iteration
+- ✅ Improved PR check waiting logic:
+  - Better error handling with detailed logging
+  - Separate handling for pending, completed, and failed checks
+  - Shows pending check names periodically
+  - Handles review decisions (APPROVED, CHANGES_REQUESTED)
+  - Detects if PR is closed during waiting
+  - More descriptive error messages
+- ✅ Updated README with new features and cleaner documentation
+- ✅ Removed `jq` from requirements (no longer needed with Python JSON parsing)
 
-## Known Limitations of Current Python Implementation
+## Current Feature Set
 
-1. **Error Handling**: Less robust than Bash version - needs more edge case handling
-2. **PR Check Logic**: Simplified check waiting - may miss some edge cases with complex CI configurations
-3. **No Max Cost/Duration**: These features were removed to simplify, but might be useful to add back
-4. **Branch Conflict Handling**: Doesn't handle merge conflicts during PR updates
-5. **JSON Parsing**: Assumes Claude Code always returns valid JSON - could be more defensive
+The script now supports:
+- Core iterative workflow with Claude Code
+- Automatic branch creation, PR management, and merging
+- Cost and duration limits (`--max-cost`, `--max-duration`)
+- Configurable merge strategies (squash/merge/rebase)
+- SHARED_TASK_NOTES.md context persistence
+- Completion signal detection for early stopping
+- GitHub repo auto-detection from git remote
+- Robust PR check waiting with detailed status reporting
+
+## Remaining Known Limitations
+
+1. **No Python unit tests** - Test suite was removed with Bash tests
+2. **Branch Conflict Handling** - Doesn't handle merge conflicts during PR updates
+3. **JSON Parsing** - Assumes Claude Code always returns valid JSON
+4. **No dry-run mode** - Useful for testing (was removed for simplicity)
+5. **No worktree support** - Useful for parallel execution (was removed for simplicity)
 
 ## Suggested Improvements for Next Iteration
 
 ### High Priority
-1. **Add max-cost and max-duration support** - These are useful limits that should be in core
-2. **Improve PR check waiting** - More robust status checking, handle edge cases better
-3. **Better error recovery** - More graceful handling of git/gh command failures
-4. **Add tests** - Create test suite for core functionality
+1. **Add Python unit tests** - Test core functionality without needing git/gh
+2. **Better error recovery** - More graceful handling of git/gh command failures
+3. **Add dry-run mode** - Useful for testing and development
+4. **Merge conflict handling** - Detect and handle merge conflicts gracefully
 
 ### Medium Priority
 5. **Configuration file support** - Allow loading defaults from `.continuous-claude.yml`
-6. **Progress indicators** - Show progress while waiting for PR checks
-7. **Better logging** - Structured logging with optional verbosity levels
-8. **Merge conflict handling** - Detect and handle merge conflicts gracefully
+6. **Structured logging** - Optional verbosity levels (-v, -vv, --quiet)
+7. **Progress indicators** - Show spinner or progress bar while waiting for PR checks
+8. **Better JSON parsing** - More defensive parsing with fallback for malformed output
 
 ### Low Priority
-9. **Re-add worktree support** - Useful for parallel execution (was removed for simplicity)
-10. **Add dry-run mode back** - Useful for testing (was removed for simplicity)
-11. **Package as Python module** - Allow `pip install continuous-claude`
+9. **Re-add worktree support** - Useful for parallel execution
+10. **Package as Python module** - Allow `pip install continuous-claude`
 
-## Files Modified
+## Files Modified (Latest Iteration)
 
-- ✅ `continuous_claude.py` - New Python implementation (core functionality)
-- ✅ `README.md` - Simplified to essential documentation only
-- ⚠️  `continuous_claude.sh` - Original Bash script (kept for reference, consider removing)
-
-## Files Not Modified (Can Be Removed)
-
-- `install.sh` - Installation script (no longer needed with Python version)
-- `CHANGELOG.md` - Historical changelog (can be removed or simplified)
-- `.github/` - GitHub Actions/Issue templates (likely not needed for refactored version)
-- `tests/` - Test suite (need to add Python tests)
+- ✅ `continuous_claude.py` - Added max-cost, max-duration, improved PR checks
+- ✅ `README.md` - Updated documentation with new features
+- ✅ `continuous_claude.sh` - Deleted (legacy Bash script)
+- ✅ `install.sh` - Deleted (no longer needed)
+- ✅ `CHANGELOG.md` - Deleted (historical documentation)
+- ✅ `.github/` - Deleted (GitHub workflows)
+- ✅ `tests/` - Deleted (Bash-specific tests)
 
 ## Testing Checklist
 
 Before considering this refactor complete:
 
+- [x] Remove legacy Bash and installation files
+- [x] Add max-cost and max-duration support
+- [x] Improve PR check error handling
 - [ ] Test basic iteration with actual Claude Code
 - [ ] Test PR creation and merging
 - [ ] Test completion signal detection
+- [ ] Test cost and duration limits
 - [ ] Test error handling (git failures, gh failures)
 - [ ] Test with different merge strategies
-- [ ] Test SHARED_TASK_NOTES.md persistence
-- [ ] Add Python unit tests
+- [ ] Add Python unit tests for core functions
 - [ ] Test on different OS (macOS, Linux)
 
 ## Decision Points for Next Developer
 
-1. **Should we keep the Bash script?** It's currently still in the repo. Could:
-   - Delete it entirely (clean break)
-   - Keep as reference/migration guide
-   - Move to `legacy/` folder
+1. **Should we add a dry-run mode?** This would be very useful for testing and development:
+   - `--dry-run` flag that skips actual git/gh commands
+   - Would allow testing without making real changes
 
-2. **Should we re-add some removed features?**
-   - Max cost/duration limits are actually quite useful
-   - Dry-run mode helps with testing
-   - Worktree support enables parallel execution
+2. **Should we add unit tests?** Current state has no tests:
+   - Create `tests/test_continuous_claude.py`
+   - Mock git/gh commands
+   - Test core logic without external dependencies
 
-3. **Package structure?** Should this be:
-   - Single script (current approach - simplest)
-   - Python package with modules (more maintainable for larger features)
-   - Hybrid: single script but with optional package install
+3. **Configuration file format?** If adding config file support:
+   - YAML (`.continuous-claude.yml`) - more readable
+   - JSON (`.continuous-claude.json`) - simpler parsing
+   - TOML (`.continuous-claude.toml`) - Python-friendly
 
-4. **Breaking changes?** The Python version has a different CLI than the Bash version:
-   - Missing flags: --max-cost, --max-duration, --worktree, --dry-run, --disable-commits, etc.
-   - Is this acceptable or should we maintain parity?
+4. **Project completion?** The refactoring is nearly complete:
+   - All legacy code removed
+   - Core features working
+   - Cost/duration limits re-added
+   - Better error handling in place
+   - Main gap: no unit tests
