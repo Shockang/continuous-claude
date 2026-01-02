@@ -16,7 +16,7 @@ class ContinuousClaude:
     def __init__(self, prompt, max_runs, github_owner, github_repo,
                  merge_strategy="squash", notes_file="SHARED_TASK_NOTES.md",
                  completion_signal="CONTINUOUS_CLAUDE_PROJECT_COMPLETE",
-                 completion_threshold=3):
+                 completion_threshold=3, max_cost=None, max_duration_seconds=None):
         self.prompt = prompt
         self.max_runs = max_runs
         self.github_owner = github_owner
@@ -25,11 +25,14 @@ class ContinuousClaude:
         self.notes_file = notes_file
         self.completion_signal = completion_signal
         self.completion_threshold = completion_threshold
+        self.max_cost = max_cost
+        self.max_duration_seconds = max_duration_seconds
 
         self.error_count = 0
         self.successful_iterations = 0
         self.total_cost = 0.0
         self.completion_signal_count = 0
+        self.start_time = time.time()
 
     def log(self, message):
         """Print message to stderr"""
@@ -165,8 +168,9 @@ class ContinuousClaude:
         return self.merge_pr(pr_number, branch_name)
 
     def wait_for_pr_checks(self, pr_number, timeout=1800):
-        """Wait for PR checks to complete"""
+        """Wait for PR checks to complete with better error handling"""
         max_iterations = timeout // 10
+        failed_checks = []
 
         for i in range(max_iterations):
             stdout, stderr, code = self.run_command(
@@ -175,31 +179,62 @@ class ContinuousClaude:
             )
 
             if code != 0:
+                self.log(f"⚠️  Failed to check PR status (attempt {i+1}/{max_iterations}): {stderr}")
                 time.sleep(10)
                 continue
 
             try:
                 pr_data = json.loads(stdout)
                 review_decision = pr_data.get("reviewDecision", "null")
+                pr_state = pr_data.get("state", "OPEN")
+
+                # Check if PR was closed
+                if pr_state != "OPEN":
+                    self.log(f"⚠️  PR is not open: {pr_state}")
+                    return False
 
                 # Check status checks
                 checks = pr_data.get("statusCheckRollup", [])
-                completed = all(c.get("status") != "PENDING" for c in checks if c.get("status"))
-                success = all(c.get("conclusion") == "SUCCESS" for c in checks if c.get("conclusion"))
 
-                if completed and success and review_decision in ["APPROVED", "null"]:
-                    self.log("✅ All PR checks and reviews passed")
+                # Separate pending, completed, and failed checks
+                pending_checks = [c for c in checks if c.get("status") in ["PENDING", "QUEUED"]]
+                completed_checks = [c for c in checks if c.get("status") == "COMPLETED"]
+                failed_checks = [
+                    c for c in completed_checks
+                    if c.get("conclusion") in ["FAILURE", "TIMED_OUT", "CANCELLED"]
+                ]
+
+                # Log pending checks periodically
+                if i % 6 == 0 and pending_checks:  # Every minute
+                    pending_names = [c.get("name", "unknown") for c in pending_checks]
+                    self.log(f"⏳ Waiting for checks: {', '.join(pending_names)}")
+
+                # If all checks are complete
+                if not pending_checks:
+                    if failed_checks:
+                        failed_names = [c.get("name", "unknown") for c in failed_checks]
+                        self.log(f"❌ Failed checks: {', '.join(failed_names)}")
+                        return False
+
+                    # All checks passed
+                    if review_decision == "APPROVED":
+                        self.log("✅ All PR checks passed and PR approved")
+                    elif review_decision == "CHANGES_REQUESTED":
+                        self.log("⚠️  PR checks passed but changes requested")
+                        return False
+                    else:
+                        self.log("✅ All PR checks passed")
+
                     return True
-                elif completed and not success:
-                    self.log("❌ PR checks failed")
-                    return False
 
-            except (json.JSONDecodeError, KeyError):
-                pass
+            except (json.JSONDecodeError, KeyError) as e:
+                self.log(f"⚠️  Failed to parse PR status: {e}")
+                time.sleep(10)
+                continue
 
             time.sleep(10)
 
-        self.log("⏱️  Timeout waiting for PR checks")
+        self.log(f"⏱️  Timeout waiting for PR checks ({timeout}s)")
         return False
 
     def merge_pr(self, pr_number, branch_name):
@@ -365,11 +400,22 @@ Keep it concise and actionable. Don't include lists of completed work or unneces
         while True:
             # Check limits
             if self.max_runs > 0 and self.successful_iterations >= self.max_runs:
+                self.log(f"✅ Reached maximum runs limit: {self.max_runs}")
                 break
 
             if self.completion_signal_count >= self.completion_threshold:
                 self.log(f"🎉 Project completion signal detected {self.completion_signal_count} times!")
                 break
+
+            if self.max_cost and self.total_cost >= self.max_cost:
+                self.log(f"💰 Reached maximum cost limit: ${self.max_cost:.3f}")
+                break
+
+            if self.max_duration_seconds:
+                elapsed = time.time() - self.start_time
+                if elapsed >= self.max_duration_seconds:
+                    self.log(f"⏱️  Reached maximum duration limit: {int(elapsed)}s")
+                    break
 
             # Run iteration
             if not self.run_claude_iteration(iteration):
@@ -382,10 +428,11 @@ Keep it concise and actionable. Don't include lists of completed work or unneces
             time.sleep(1)
 
         # Show summary
+        elapsed = time.time() - self.start_time
         if self.total_cost > 0:
-            self.log(f"🎉 Done with total cost: ${self.total_cost:.3f}")
+            self.log(f"🎉 Done with total cost: ${self.total_cost:.3f} in {int(elapsed)}s")
         else:
-            self.log("🎉 Done")
+            self.log(f"🎉 Done in {int(elapsed)}s")
 
 
 def main():
@@ -404,11 +451,29 @@ def main():
                        help="Phrase that signals project completion")
     parser.add_argument("--completion-threshold", type=int, default=3,
                        help="Number of consecutive completion signals to stop (default: 3)")
+    parser.add_argument("--max-cost", type=float,
+                       help="Maximum total cost in USD (e.g., 5.50 for $5.50)")
+    parser.add_argument("--max-duration",
+                       help="Maximum duration (e.g., 1h, 30m, 45s)")
 
     args = parser.parse_args()
 
+    # Parse max duration
+    max_duration_seconds = None
+    if args.max_duration:
+        duration_str = args.max_duration.lower()
+        if duration_str.endswith("h"):
+            max_duration_seconds = int(duration_str[:-1]) * 3600
+        elif duration_str.endswith("m"):
+            max_duration_seconds = int(duration_str[:-1]) * 60
+        elif duration_str.endswith("s"):
+            max_duration_seconds = int(duration_str[:-1])
+        else:
+            print("❌ Invalid --max-duration format. Use format like 1h, 30m, or 45s", file=sys.stderr)
+            sys.exit(1)
+
     # Check requirements
-    for cmd in ["claude", "gh", "jq"]:
+    for cmd in ["claude", "gh"]:
         _, _, code = subprocess.run(
             ["which", cmd],
             capture_output=True,
@@ -426,7 +491,9 @@ def main():
         merge_strategy=args.merge_strategy,
         notes_file=args.notes_file,
         completion_signal=args.completion_signal,
-        completion_threshold=args.completion_threshold
+        completion_threshold=args.completion_threshold,
+        max_cost=args.max_cost,
+        max_duration_seconds=max_duration_seconds
     )
 
     cc.run()
