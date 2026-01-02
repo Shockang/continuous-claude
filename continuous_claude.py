@@ -16,7 +16,8 @@ class ContinuousClaude:
     def __init__(self, prompt, max_runs, github_owner, github_repo,
                  merge_strategy="squash", notes_file="SHARED_TASK_NOTES.md",
                  completion_signal="CONTINUOUS_CLAUDE_PROJECT_COMPLETE",
-                 completion_threshold=3, max_cost=None, max_duration_seconds=None):
+                 completion_threshold=3, max_cost=None, max_duration_seconds=None,
+                 dry_run=False):
         self.prompt = prompt
         self.max_runs = max_runs
         self.github_owner = github_owner
@@ -27,6 +28,7 @@ class ContinuousClaude:
         self.completion_threshold = completion_threshold
         self.max_cost = max_cost
         self.max_duration_seconds = max_duration_seconds
+        self.dry_run = dry_run
 
         self.error_count = 0
         self.successful_iterations = 0
@@ -36,17 +38,25 @@ class ContinuousClaude:
 
     def log(self, message):
         """Print message to stderr"""
-        print(message, file=sys.stderr)
+        prefix = "[DRY RUN] " if self.dry_run else ""
+        print(f"{prefix}{message}", file=sys.stderr)
 
     def run_command(self, cmd, capture_output=True, check=False):
-        """Run a shell command"""
+        """Run a shell command (or simulate in dry-run mode)"""
+        if self.dry_run:
+            self.log(f"🔍 Would run: {cmd}")
+            if capture_output:
+                return "", "", 0
+            return None, None, 0
+
         try:
             result = subprocess.run(
                 cmd,
                 shell=True,
                 capture_output=capture_output,
                 text=True,
-                check=check
+                check=check,
+                timeout=30  # Add timeout to prevent hanging
             )
             if capture_output:
                 return result.stdout.strip(), result.stderr.strip(), result.returncode
@@ -55,6 +65,11 @@ class ContinuousClaude:
             if capture_output:
                 return e.stdout.strip(), e.stderr.strip(), e.returncode
             return None, None, e.returncode
+        except subprocess.TimeoutExpired:
+            self.log(f"⚠️  Command timed out: {cmd}")
+            if capture_output:
+                return "", "Command timed out after 30s", -1
+            return None, None, -1
 
     def detect_github_repo(self):
         """Auto-detect GitHub owner and repo from git remote"""
@@ -288,18 +303,27 @@ class ContinuousClaude:
             self.cleanup_branch(branch_name)
             return False
 
-        # Parse result
+        # Parse result with defensive error handling
         try:
             result = json.loads(stdout)
             if isinstance(result, list):
+                if not result:
+                    self.log("❌ Claude returned empty list")
+                    self.cleanup_branch(branch_name)
+                    return False
                 result = result[-1]
 
             result_text = result.get("result", "")
-            cost = result.get("total_cost_usd", 0)
+
+            # Handle missing or invalid cost
+            try:
+                cost = float(result.get("total_cost_usd", 0))
+            except (ValueError, TypeError):
+                cost = 0.0
 
             self.log(f"📝 {iteration_display} Output: {result_text[:200]}...")
 
-            if cost:
+            if cost > 0:
                 self.log(f"💰 {iteration_display} Cost: ${cost:.3f}")
                 self.total_cost += cost
 
@@ -310,8 +334,14 @@ class ContinuousClaude:
             else:
                 self.completion_signal_count = 0
 
-        except (json.JSONDecodeError, KeyError, IndexError) as e:
-            self.log(f"❌ Failed to parse Claude output: {e}")
+        except json.JSONDecodeError as e:
+            self.log(f"❌ Failed to parse Claude JSON output: {e}")
+            self.log(f"🔍 Raw output (first 500 chars): {stdout[:500]}")
+            self.cleanup_branch(branch_name)
+            return False
+        except (KeyError, IndexError, AttributeError) as e:
+            self.log(f"❌ Unexpected Claude output structure: {e}")
+            self.log(f"🔍 Raw output (first 500 chars): {stdout[:500]}")
             self.cleanup_branch(branch_name)
             return False
 
@@ -455,6 +485,8 @@ def main():
                        help="Maximum total cost in USD (e.g., 5.50 for $5.50)")
     parser.add_argument("--max-duration",
                        help="Maximum duration (e.g., 1h, 30m, 45s)")
+    parser.add_argument("--dry-run", action="store_true",
+                       help="Simulate execution without making real changes")
 
     args = parser.parse_args()
 
@@ -474,12 +506,12 @@ def main():
 
     # Check requirements
     for cmd in ["claude", "gh"]:
-        _, _, code = subprocess.run(
+        result = subprocess.run(
             ["which", cmd],
             capture_output=True,
             text=True
         )
-        if code != 0:
+        if result.returncode != 0:
             print(f"❌ Required command not found: {cmd}", file=sys.stderr)
             sys.exit(1)
 
@@ -493,7 +525,8 @@ def main():
         completion_signal=args.completion_signal,
         completion_threshold=args.completion_threshold,
         max_cost=args.max_cost,
-        max_duration_seconds=max_duration_seconds
+        max_duration_seconds=max_duration_seconds,
+        dry_run=args.dry_run
     )
 
     cc.run()
