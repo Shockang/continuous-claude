@@ -187,13 +187,9 @@ class TestGitHubRepoDetection(unittest.TestCase):
 
         owner, repo = self.cc.detect_github_repo()
 
-        # SSH URLs should be detected
-        # Note: The implementation requires 'github.com/' in the URL,
-        # but SSH URLs use 'git@github.com:' which doesn't match
-        # This test documents the current behavior
-        # If SSH detection is desired, the implementation needs:
-        # elif "github.com:" in url or url.startswith("git@github.com:")
-        self.assertIsNone(owner)  # Current implementation doesn't detect SSH
+        # SSH URLs should now be detected
+        self.assertEqual(owner, "owner")
+        self.assertEqual(repo, "repo")
 
     @patch.object(ContinuousClaude, 'run_command')
     def test_detect_no_github_url(self, mock_run):

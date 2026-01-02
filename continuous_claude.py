@@ -78,17 +78,16 @@ class ContinuousClaude:
             return None, None
 
         url = stdout
-        if "github.com/" in url:
-            # Parse HTTPS: https://github.com/owner/repo.git
-            if url.startswith("https://"):
-                parts = url.replace("https://github.com/", "").replace(".git", "").split("/")
-                if len(parts) >= 2:
-                    return parts[0], parts[1]
-            # Parse SSH: git@github.com:owner/repo.git
-            elif url.startswith("git@github.com:"):
-                parts = url.replace("git@github.com:", "").replace(".git", "").split("/")
-                if len(parts) >= 2:
-                    return parts[0], parts[1]
+        # Parse HTTPS: https://github.com/owner/repo.git
+        if url.startswith("https://github.com/"):
+            parts = url.replace("https://github.com/", "").replace(".git", "").split("/")
+            if len(parts) >= 2:
+                return parts[0], parts[1]
+        # Parse SSH: git@github.com:owner/repo.git
+        elif url.startswith("git@github.com:"):
+            parts = url.replace("git@github.com:", "").replace(".git", "").split("/")
+            if len(parts) >= 2:
+                return parts[0], parts[1]
 
         return None, None
 
