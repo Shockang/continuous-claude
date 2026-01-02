@@ -6,6 +6,15 @@ The Python refactoring is now **complete** with comprehensive unit test coverage
 
 ## Latest Work (2026-01-02)
 
+### Fixed: SSH URL Auto-Detection
+- ✅ **Fixed SSH URL parsing bug** in `continuous_claude.py:74`:
+  - Previously required `"github.com/"` in URL which failed for SSH format
+  - Now properly detects both HTTPS and SSH GitHub URLs
+  - HTTPS: `https://github.com/owner/repo.git`
+  - SSH: `git@github.com:owner/repo.git`
+- ✅ **Updated SSH URL test** to expect successful detection
+- ✅ **All 39 tests passing** including SSH URL detection
+
 ### Completed: Python Unit Test Suite
 - ✅ **Added comprehensive unit tests** (`tests/test_continuous_claude.py`):
   - 39 passing tests covering all core functionality
@@ -49,11 +58,10 @@ The script now supports:
 
 ## Remaining Known Limitations
 
-1. **SSH URL auto-detection** - Only detects HTTPS GitHub URLs (not git@github.com:)
-2. **Branch conflict handling** - Doesn't handle merge conflicts during PR updates
-3. **No configuration file support** - All options must be passed via CLI
-4. **No worktree support** - Could be useful for parallel execution
-5. **Limited logging options** - No verbosity levels or quiet mode
+1. **Branch conflict handling** - Doesn't handle merge conflicts during PR updates
+2. **No configuration file support** - All options must be passed via CLI
+3. **No worktree support** - Could be useful for parallel execution
+4. **Limited logging options** - No verbosity levels or quiet mode
 
 ## Suggested Improvements for Next Iteration
 
@@ -61,17 +69,16 @@ The script now supports:
 1. **Configuration file support** - Allow loading defaults from `.continuous-claude.yml`/`.json`/`.toml`
 2. **Merge conflict handling** - Detect and handle merge conflicts gracefully
 3. **Structured logging** - Optional verbosity levels (-v, -vv, --quiet)
-4. **SSH URL support** - Extend auto-detection to support git@github.com: URLs
 
 ### Medium Priority (Nice-to-Have)
-5. **Progress indicators** - Show spinner or progress bar while waiting for PR checks
-6. **Continue on non-fatal errors** - More resilient error recovery
-7. **Better Claude Code integration** - Handle edge cases in Claude output
+4. **Progress indicators** - Show spinner or progress bar while waiting for PR checks
+5. **Continue on non-fatal errors** - More resilient error recovery
+6. **Better Claude Code integration** - Handle edge cases in Claude output
 
 ### Low Priority (Future Features)
-8. **Re-add worktree support** - Useful for parallel execution
-9. **Package as Python module** - Allow `pip install continuous-claude`
-10. **Interactive mode** - Allow approval before each iteration
+7. **Re-add worktree support** - Useful for parallel execution
+8. **Package as Python module** - Allow `pip install continuous-claude`
+9. **Interactive mode** - Allow approval before each iteration
 
 ## Testing Status
 
@@ -79,7 +86,7 @@ The script now supports:
 - [x] 39 unit tests created and passing
 - [x] Test initialization and configuration
 - [x] Test command execution (normal, dry-run, timeout, failure)
-- [x] Test GitHub repo detection (HTTPS URLs)
+- [x] Test GitHub repo detection (HTTPS and SSH URLs)
 - [x] Test branch creation and cleanup
 - [x] Test prompt building with context
 - [x] Test merge strategies
