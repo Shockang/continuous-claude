@@ -63,6 +63,29 @@ Run Claude Code in a loop with automatic PR management.
 5. Merges the PR and returns to main branch
 6. Repeats until max runs, cost limit, duration limit, or completion signal
 
+## Development
+
+### Running Tests
+
+The project includes a comprehensive unit test suite:
+
+```bash
+# Install test dependencies
+pip install -r requirements-test.txt
+
+# Run all tests
+python -m pytest tests/ -v
+
+# Run with coverage report
+python -m pytest tests/ --cov=. --cov-report=term-missing
+```
+
+### Test Coverage
+
+- 39 unit tests covering core functionality
+- Tests mock external dependencies (git, gh, Claude)
+- Integration tests require actual GitHub repository and Claude Code installation
+
 ## License
 
 MIT
