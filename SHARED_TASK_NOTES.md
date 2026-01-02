@@ -2,30 +2,25 @@
 
 ## Current Status
 
-The project has been successfully cleaned up and enhanced. All legacy Bash files and non-essential documentation have been removed. Cost and duration limits have been re-added, and PR check error handling has been significantly improved.
+The project refactoring is progressing well. Core functionality has been implemented with robust error handling. Recently added dry-run mode and improved error recovery mechanisms.
 
 ## What Was Done (Latest Iteration)
 
-### Completed
-- ✅ Removed all legacy files:
-  - `continuous_claude.sh` (old Bash script)
-  - `install.sh` (installation script)
-  - `CHANGELOG.md` (historical changelog)
-  - `.github/` directory (GitHub workflows)
-  - `tests/` directory (Bash-specific tests)
-- ✅ Re-added max-cost and max-duration support:
-  - `--max-cost` flag to limit total spending in USD
-  - `--max-duration` flag with flexible format (1h, 30m, 45s)
-  - Both limits are checked before each iteration
-- ✅ Improved PR check waiting logic:
-  - Better error handling with detailed logging
-  - Separate handling for pending, completed, and failed checks
-  - Shows pending check names periodically
-  - Handles review decisions (APPROVED, CHANGES_REQUESTED)
-  - Detects if PR is closed during waiting
-  - More descriptive error messages
-- ✅ Updated README with new features and cleaner documentation
-- ✅ Removed `jq` from requirements (no longer needed with Python JSON parsing)
+### Completed (2026-01-02)
+- ✅ **Added dry-run mode** (`--dry-run` flag):
+  - Simulates execution without making real changes
+  - Shows commands that would be executed
+  - Useful for testing and development
+- ✅ **Improved error recovery**:
+  - Added 30s timeout to all git/gh commands to prevent hanging
+  - Better error messages with raw output preview for debugging
+  - Handles subprocess timeout exceptions gracefully
+- ✅ **Enhanced JSON parsing**:
+  - Defensive parsing with explicit error handling for empty lists
+  - Safe cost value extraction with type checking
+  - Separate error handlers for JSONDecodeError vs structure errors
+  - Shows raw output on parse failures for debugging
+- ✅ **Updated documentation** with dry-run feature
 
 ## Current Feature Set
 
@@ -33,47 +28,40 @@ The script now supports:
 - Core iterative workflow with Claude Code
 - Automatic branch creation, PR management, and merging
 - Cost and duration limits (`--max-cost`, `--max-duration`)
+- **Dry-run mode for safe testing** (`--dry-run`)
 - Configurable merge strategies (squash/merge/rebase)
 - SHARED_TASK_NOTES.md context persistence
 - Completion signal detection for early stopping
 - GitHub repo auto-detection from git remote
 - Robust PR check waiting with detailed status reporting
+- **Timeout protection** on all external commands
+- **Defensive JSON parsing** with detailed error messages
 
 ## Remaining Known Limitations
 
-1. **No Python unit tests** - Test suite was removed with Bash tests
+1. **No Python unit tests** - Test suite was removed with Bash tests (HIGH PRIORITY)
 2. **Branch Conflict Handling** - Doesn't handle merge conflicts during PR updates
-3. **JSON Parsing** - Assumes Claude Code always returns valid JSON
-4. **No dry-run mode** - Useful for testing (was removed for simplicity)
-5. **No worktree support** - Useful for parallel execution (was removed for simplicity)
+3. **No configuration file support** - All options must be passed via CLI
+4. **No worktree support** - Useful for parallel execution
+5. **Limited logging options** - No verbosity levels or quiet mode
 
 ## Suggested Improvements for Next Iteration
 
 ### High Priority
 1. **Add Python unit tests** - Test core functionality without needing git/gh
-2. **Better error recovery** - More graceful handling of git/gh command failures
-3. **Add dry-run mode** - Useful for testing and development
-4. **Merge conflict handling** - Detect and handle merge conflicts gracefully
+2. **Configuration file support** - Allow loading defaults from `.continuous-claude.yml`
+3. **Merge conflict handling** - Detect and handle merge conflicts gracefully
+4. **Structured logging** - Optional verbosity levels (-v, -vv, --quiet)
 
 ### Medium Priority
-5. **Configuration file support** - Allow loading defaults from `.continuous-claude.yml`
-6. **Structured logging** - Optional verbosity levels (-v, -vv, --quiet)
-7. **Progress indicators** - Show spinner or progress bar while waiting for PR checks
-8. **Better JSON parsing** - More defensive parsing with fallback for malformed output
+5. **Progress indicators** - Show spinner or progress bar while waiting for PR checks
+6. **Continue on non-fatal errors** - More resilient error recovery
+7. **Better Claude Code integration** - Handle edge cases in Claude output
 
 ### Low Priority
-9. **Re-add worktree support** - Useful for parallel execution
-10. **Package as Python module** - Allow `pip install continuous-claude`
-
-## Files Modified (Latest Iteration)
-
-- ✅ `continuous_claude.py` - Added max-cost, max-duration, improved PR checks
-- ✅ `README.md` - Updated documentation with new features
-- ✅ `continuous_claude.sh` - Deleted (legacy Bash script)
-- ✅ `install.sh` - Deleted (no longer needed)
-- ✅ `CHANGELOG.md` - Deleted (historical documentation)
-- ✅ `.github/` - Deleted (GitHub workflows)
-- ✅ `tests/` - Deleted (Bash-specific tests)
+8. **Re-add worktree support** - Useful for parallel execution
+9. **Package as Python module** - Allow `pip install continuous-claude`
+10. **Interactive mode** - Allow approval before each iteration
 
 ## Testing Checklist
 
@@ -82,10 +70,14 @@ Before considering this refactor complete:
 - [x] Remove legacy Bash and installation files
 - [x] Add max-cost and max-duration support
 - [x] Improve PR check error handling
+- [x] Add dry-run mode
+- [x] Improve error recovery with timeouts
+- [x] Add defensive JSON parsing
 - [ ] Test basic iteration with actual Claude Code
 - [ ] Test PR creation and merging
 - [ ] Test completion signal detection
 - [ ] Test cost and duration limits
+- [ ] Test dry-run mode doesn't make changes
 - [ ] Test error handling (git failures, gh failures)
 - [ ] Test with different merge strategies
 - [ ] Add Python unit tests for core functions
@@ -93,23 +85,35 @@ Before considering this refactor complete:
 
 ## Decision Points for Next Developer
 
-1. **Should we add a dry-run mode?** This would be very useful for testing and development:
-   - `--dry-run` flag that skips actual git/gh commands
-   - Would allow testing without making real changes
-
-2. **Should we add unit tests?** Current state has no tests:
+1. **Should we add unit tests?** This is the biggest remaining gap:
    - Create `tests/test_continuous_claude.py`
-   - Mock git/gh commands
+   - Mock git/gh/Claude commands
    - Test core logic without external dependencies
+   - Would significantly improve confidence in changes
 
-3. **Configuration file format?** If adding config file support:
+2. **Configuration file format?** Would simplify usage for repeated runs:
    - YAML (`.continuous-claude.yml`) - more readable
    - JSON (`.continuous-claude.json`) - simpler parsing
    - TOML (`.continuous-claude.toml`) - Python-friendly
 
-4. **Project completion?** The refactoring is nearly complete:
-   - All legacy code removed
-   - Core features working
-   - Cost/duration limits re-added
-   - Better error handling in place
-   - Main gap: no unit tests
+3. **Merge conflict handling?** Current limitation:
+   - Auto-abort on merge conflicts
+   - Could add conflict detection and user notification
+   - Or implement auto-resolve strategies
+
+4. **Project completion?** The refactoring is very close to complete:
+   - All legacy code removed ✅
+   - Core features working ✅
+   - Cost/duration limits ✅
+   - Dry-run mode ✅
+   - Better error handling ✅
+   - Main remaining gap: **no unit tests**
+
+## Implementation Notes for Next Developer
+
+- All external commands now have 30s timeout
+- Dry-run mode simulates all operations but makes no changes
+- JSON parsing handles empty lists, missing fields, and invalid types
+- Error messages include raw output for debugging
+- The codebase is now well-structured for adding unit tests
+

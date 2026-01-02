@@ -9,6 +9,8 @@ Run Claude Code in a loop with automatic PR management.
 - Cost and duration limits to control budget and time
 - Context persistence across iterations via SHARED_TASK_NOTES.md
 - Project completion signal detection for early stopping
+- Dry-run mode for testing without making real changes
+- Robust error handling and recovery
 
 ## Prerequisites
 
@@ -33,6 +35,9 @@ Run Claude Code in a loop with automatic PR management.
 
 # Use merge commits instead of squash
 ./continuous_claude.py -p "update docs" -m 5 --merge-strategy merge
+
+# Dry-run mode (simulate without making changes)
+./continuous_claude.py -p "test workflow" -m 3 --dry-run
 ```
 
 ## Options
@@ -44,6 +49,7 @@ Run Claude Code in a loop with automatic PR management.
 - `--merge-strategy`: PR merge strategy: squash, merge, or rebase (default: squash)
 - `--max-cost`: Maximum total cost in USD (e.g., 5.50 for $5.50)
 - `--max-duration`: Maximum duration (e.g., 1h, 30m, 45s)
+- `--dry-run`: Simulate execution without making real changes (useful for testing)
 - `--notes-file`: Path to shared task notes file (default: SHARED_TASK_NOTES.md)
 - `--completion-signal`: Phrase that signals project completion
 - `--completion-threshold`: Number of consecutive signals to stop (default: 3)
